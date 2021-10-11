@@ -32,14 +32,14 @@
 
   
   <url>
-    <loc>http://example.com/tags/%E4%BB%A3%E7%90%86/</loc>
+    <loc>http://example.com/tags/Ubuntu/</loc>
     <lastmod>2021-10-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://example.com/tags/Ubuntu/</loc>
+    <loc>http://example.com/tags/%E4%BB%A3%E7%90%86/</loc>
     <lastmod>2021-10-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
