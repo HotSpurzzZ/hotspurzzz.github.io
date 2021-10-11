@@ -13,28 +13,28 @@
 <h1 id="一、浏览器实现代理"><a href="#一、浏览器实现代理" class="headerlink" title="一、浏览器实现代理"></a>一、浏览器实现代理</h1><p>windows主机中</p>
 <p><code>ipconfig</code></p>
 <p>记住WLAN下的IPV4地址</p>
-<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%25/Untitled.png" alt="Untitled"></p>
+<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%20/Untitled.png" alt="Untitled"></p>
 <p>在代理软件中开启局域网共享，并记住Http端口及Socks5端口号</p>
-<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%25/Untitled%201.png" alt="Untitled"></p>
+<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%20/Untitled%201.png" alt="Untitled"></p>
 <p>Ubuntu虚拟机中</p>
 <p>之后在系统网络设置中，Network Proxy设置如下</p>
-<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%25/Untitled%202.png" alt="Untitled"></p>
+<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%20/Untitled%202.png" alt="Untitled"></p>
 <p>之后即可在虚拟机浏览器中访问Google等网站。</p>
 <h1 id="二、终端实现代理"><a href="#二、终端实现代理" class="headerlink" title="二、终端实现代理"></a>二、终端实现代理</h1><p>先安装：</p>
 <p><code>apt-get install proxychains</code></p>
 <p>之后设置代理配置</p>
 <p><code>gedit /etc/proxychains.conf</code></p>
 <p>将最后一行socks4注释，加上socks5，并附上刚才的IP地址及端口号</p>
-<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%25/Untitled%203.png" alt="Untitled"></p>
+<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%20/Untitled%203.png" alt="Untitled"></p>
 <p>最后需要使用<code>find /usr/lib/ -name libproxychains.so.3 -print</code>命令输出路径</p>
 <p>再执行<code>gedit /usr/bin/proxychains</code></p>
 <p>将<code>export LD_PRELOAD=libproxychains.so.3</code>改为<code>export LD_PRELOAD=刚刚获得的路径</code></p>
 <p>使用代理时只需在命令前加上<code>proxychains</code>即可</p>
 <p>测试：</p>
-<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%25/Untitled%204.png" alt="Untitled"></p>
+<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%20/Untitled%204.png" alt="Untitled"></p>
 <p>附：命令行取消代理（有时可能会用到）</p>
 <p><code>env | grep -i proxy</code>查看当前命令行代理设置</p>
-<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%25/Untitled%205.png" alt="Untitled"></p>
+<p><img src="ubuntu%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86%E5%AE%9E%E7%8E%B0%E7%BF%BB%E5%A2%99%20/Untitled%205.png" alt="Untitled"></p>
 <p><code>unset HTTP_PROXY</code></p>
 <p>注意大小写</p>
 </div><hr></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2021 By John Doe</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_uv"><i class="fa fa-user"></i><span id="busuanzi_value_site_uv"></span><span></span></span><span class="footer-separator">|</span><span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i><span id="busuanzi_value_site_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
