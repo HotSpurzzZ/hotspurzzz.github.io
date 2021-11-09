@@ -291,7 +291,7 @@ blockquote {
 .article-container .highlight .gutter pre {
   padding-right: 0.5rem;
   padding-left: 0.5rem;
-  background-color: #263238;
+  background-color: #a2e3d0;
   color: #37474f;
   text-align: right;
 }
@@ -299,7 +299,7 @@ blockquote {
   padding-right: 0.5rem;
   padding-left: 0.5rem;
   width: 100%;
-  background-color: #263238;
+  background-color: #a2e3d0;
 }
 .article-container .highlight .line {
   height: 1rem;
