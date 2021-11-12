@@ -292,7 +292,7 @@ blockquote {
   padding-right: 0.5rem;
   padding-left: 0.5rem;
   background-color: #f6f8fa;
-  color: #37474f;
+  color: #cfd8dc;
   text-align: right;
 }
 .article-container .highlight .code pre {
@@ -1473,7 +1473,7 @@ a.fancybox:focus {
   z-index: 1;
   display: inline-block;
   padding: 0 0.7rem;
-  color: #eff;
+  color: #90a4ae;
   font-weight: bold;
   font-size: 0.8rem;
   line-height: 1.4rem;
