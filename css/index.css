@@ -212,7 +212,7 @@ blockquote {
   z-index: 0;
   min-width: 100%;
   height: 1.4rem;
-  background: #a2e3d0;
+  background: #f6f8fa;
   content: "";
 }
 .article-container .highlight pre {
