@@ -46,7 +46,7 @@
 
   <url>
     <loc>http://example.com/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -54,63 +54,63 @@
   
   <url>
     <loc>http://example.com/tags/Ubuntu/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E4%BB%A3%E7%90%86/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/Fuzz/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/docker/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/AEG/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/PowerShell/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E5%8F%8D%E6%B7%B7%E6%B7%86/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/IDA/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/IDA-Python/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -119,28 +119,28 @@
   
   <url>
     <loc>http://example.com/categories/Ubuntu/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/categories/Fuzzing/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/categories/PowerShell/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/categories/IDA/</loc>
-    <lastmod>2021-11-12</lastmod>
+    <lastmod>2021-11-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
