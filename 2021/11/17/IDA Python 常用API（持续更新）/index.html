@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="IDA Python 常用API（持续更新）"><meta name="keywords" content="IDA,IDA Python"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>IDA Python 常用API（持续更新） | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#IDA-Python-%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">IDA Python 常用API（持续更新）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%9D%97"><span class="toc-number">1.1.</span> <span class="toc-text">常见模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96IDA%E7%95%8C%E9%9D%A2%E5%9C%B0%E5%9D%80"><span class="toc-number">1.2.</span> <span class="toc-text">获取IDA界面地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%9C%B0%E5%9D%80%E7%9A%84%E6%95%B0%E5%80%BC"><span class="toc-number">1.3.</span> <span class="toc-text">获取地址的数值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E6%8C%87%E4%BB%A4%E6%95%B0%E5%80%BC"><span class="toc-number">1.4.</span> <span class="toc-text">修改指令数值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E6%93%8D%E4%BD%9C"><span class="toc-number">1.5.</span> <span class="toc-text">汇编指令操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AE%B5%E6%93%8D%E4%BD%9C"><span class="toc-number">1.6.</span> <span class="toc-text">段操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E6%93%8D%E4%BD%9C"><span class="toc-number">1.7.</span> <span class="toc-text">函数操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.8.</span> <span class="toc-text">数据查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C%E5%87%BD%E6%95%B0"><span class="toc-number">1.9.</span> <span class="toc-text">数据校验函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8"><span class="toc-number">1.10.</span> <span class="toc-text">交叉引用</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">5</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">IDA Python 常用API（持续更新）</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2021-11-17</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/IDA/">IDA</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="IDA-Python-常用API（持续更新）"><a href="#IDA-Python-常用API（持续更新）" class="headerlink" title="IDA Python 常用API（持续更新）"></a>IDA Python 常用API（持续更新）</h1><p>环境：IDAPro 7.6</p>
+<p>（注意IDAPro 7.4版本后，IDA Python的API版本与7.4之前的版本发生了很多变化，具体区别请看<a target="_blank" rel="noopener" href="https://hex-rays.com/products/ida/support/ida74_idapython_no_bc695_porting_guide.shtml">https://hex-rays.com/products/ida/support/ida74_idapython_no_bc695_porting_guide.shtml</a>）</p>
+<span id="more"></span>
+
+<h2 id="常见模块"><a href="#常见模块" class="headerlink" title="常见模块"></a>常见模块</h2><p>在IDA中.有三个重要的库.分别是IDC,idautils,idaapi</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IDC</td>
+<td>封装IDA与IDC函数的兼容性模块.</td>
+</tr>
+<tr>
+<td>idautils</td>
+<td>高级实用的模块</td>
+</tr>
+<tr>
+<td>idaapi</td>
+<td>允许访问更加底层的数据</td>
+</tr>
+</tbody></table>
+<h2 id="获取IDA界面地址"><a href="#获取IDA界面地址" class="headerlink" title="获取IDA界面地址"></a>获取IDA界面地址</h2><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>取当前地址</td>
+<td>idc.here() 或 idc.get_screen_ea()</td>
+</tr>
+<tr>
+<td>获取最小地址（可以使用的）</td>
+<td>ida_ida.inf_get_min_ea()</td>
+</tr>
+<tr>
+<td>获取最大地址（可以使用的）</td>
+<td>ida_ida.inf_get_max_ea()</td>
+</tr>
+<tr>
+<td>获取所选范围的起始地址</td>
+<td>idc.read_selection_start()</td>
+</tr>
+<tr>
+<td>获取所选范围的结束地址</td>
+<td>idc.read_selection_end()</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;当前地址：&#x27;</span>+<span class="built_in">hex</span>(idc.here()))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;基址：&#x27;</span>+<span class="built_in">hex</span>(ida_ida.inf_get_min_ea())))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled.png"></p>
+<h2 id="获取地址的数值"><a href="#获取地址的数值" class="headerlink" title="获取地址的数值"></a>获取地址的数值</h2><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>以1字节为单位获取地址处的值</td>
+<td>idc.get_wide_byte(addr)</td>
+</tr>
+<tr>
+<td>以2字节(字)的单位获取</td>
+<td>idc.get_wide_word(addr)</td>
+</tr>
+<tr>
+<td>以4字节的单位获取</td>
+<td>idc.get_wide_dword(addr)</td>
+</tr>
+<tr>
+<td>以8字节的单位获取</td>
+<td>idc.get_qword(addr)</td>
+</tr>
+<tr>
+<td>判断是否是字节</td>
+<td>ida_bytes.is_byte</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> ida_bytes</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;当前地址：&#x27;</span>+<span class="built_in">hex</span>(idc.here()))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;值&#x27;</span>+<span class="built_in">hex</span>(idc.get_wide_byte(idc.here())))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%201.png"></p>
+<h2 id="修改指令数值"><a href="#修改指令数值" class="headerlink" title="修改指令数值"></a>修改指令数值</h2><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>修改addr地址的值为value.每次修改1个字节</td>
+<td>ida_bytes.patch_byte(addr,value)</td>
+</tr>
+<tr>
+<td>每次修改2个字节</td>
+<td>ida_bytes.patch_word(addr,value)</td>
+</tr>
+<tr>
+<td>每次修改4个字节</td>
+<td>ida_bytes.patch_Dword(addr,value)</td>
+</tr>
+<tr>
+<td>每次修改8个字节</td>
+<td>ida_bytes.patch_Qword(addr,value)</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> ida_bytes</span><br><span class="line">addr = idc.here()</span><br><span class="line">value_before = idc.get_wide_byte(addr)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;修改之前：&quot;</span>+ <span class="built_in">hex</span>(value_before))</span><br><span class="line"></span><br><span class="line">ida_bytes.patch_byte(addr,<span class="number">0x90</span>)</span><br><span class="line"></span><br><span class="line">value_after = idc.get_wide_byte(addr)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;修改之后：&quot;</span>+ <span class="built_in">hex</span>(value_after))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%202.png" alt="Untitled"></p>
+<h2 id="汇编指令操作"><a href="#汇编指令操作" class="headerlink" title="汇编指令操作"></a>汇编指令操作</h2><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取地址处的汇编语句</td>
+<td>idc.GetDisasm(addr) 或 idc.generate_disasm_line(addr,flags)</td>
+</tr>
+<tr>
+<td>获取指定地址位置的操作数.参数1是地址.参数2是操作数索引.如 mov ebp,esp中： 操作数1是ebp ，操作数2是esp mov则是汇编指令不是操作数</td>
+<td>idc.print_operand(addr,index)</td>
+</tr>
+<tr>
+<td>获取汇编操作指令（如mov、add）</td>
+<td>idc.print_insn_mnem(addr)</td>
+</tr>
+<tr>
+<td>获取操作数的类型</td>
+<td>idc.get_operand_type(addr,index)</td>
+</tr>
+<tr>
+<td>获取指定索引操作数中的值: 如 calll 0x00402004 对应汇编为: FF 15 04 20 40 00 FF15=Call 而操作数的值则为04 20 40 00 (小端) 使用函数之后获取则为地址 00402004</td>
+<td>idc.get_operand_value(addr,index)</td>
+</tr>
+<tr>
+<td>获取下一行汇编</td>
+<td>idc.next_head(addr)</td>
+</tr>
+<tr>
+<td>获取上一行汇编</td>
+<td>idc.PrevHead(addr)</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idautils</span><br><span class="line"></span><br><span class="line">ea = idc.here();</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;基址为: &quot;</span> + <span class="built_in">hex</span>(idaapi.get_imagebase()))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;当前汇编: &quot;</span> + idc.GetDisasm(ea))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;当前汇编指令为: &quot;</span> + idc.print_insn_mnem(ea))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;当前操作数为: &quot;</span> + idc.print_operand(ea,<span class="number">0</span>))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%203.png" alt="Untitled"></p>
+<h2 id="段操作"><a href="#段操作" class="headerlink" title="段操作"></a>段操作</h2><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取段的名字（参数为当前的地址）</td>
+<td>idc.get_segm_name(addr)</td>
+</tr>
+<tr>
+<td>获取段的开始地址</td>
+<td>idc.get_segm_start(addr)</td>
+</tr>
+<tr>
+<td>获取段的结束地址</td>
+<td>idc.get_segm_end(addr)</td>
+</tr>
+<tr>
+<td>获取第一个段</td>
+<td>idc.get_first_seg(addr)</td>
+</tr>
+<tr>
+<td>获取下一个段</td>
+<td>idc.get_next_seg(addr)</td>
+</tr>
+<tr>
+<td>返回一个列表记录所有段的地址</td>
+<td>idautil.Segments()</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idautils</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> seg_addr <span class="keyword">in</span> idautils.Segments():</span><br><span class="line">    segname = idc.get_segm_name(seg_addr)</span><br><span class="line">    segstart = idc.get_segm_start(seg_addr)</span><br><span class="line">    segend   = idc.get_segm_end(seg_addr)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;段名：&quot;</span> + segname + <span class="string">&quot;起始地址：&quot;</span> + <span class="built_in">hex</span>(segstart) + <span class="string">&quot;结束地址：&quot;</span> + <span class="built_in">hex</span>(segend));</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%204.png" alt="Untitled"></p>
+<h2 id="函数操作"><a href="#函数操作" class="headerlink" title="函数操作"></a>函数操作</h2><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取指定地址之间的所有函数</td>
+<td>idautils.Functions(startaddr,endaddr)</td>
+</tr>
+<tr>
+<td>获取指定地址的函数名</td>
+<td>idc.get_func_name(addr)</td>
+</tr>
+<tr>
+<td>获取函数的注释</td>
+<td>get_func_cmt(addr, repeatable)  repeatable:0/1    0是获取常规注释 1是获取重复注释</td>
+</tr>
+<tr>
+<td>设置函数注释</td>
+<td>idc.set_func_cmt(ea, cmt, repeatable)</td>
+</tr>
+<tr>
+<td>弹出框框要求用户进行选择 参数则是信息</td>
+<td>idc.choose_func(title)</td>
+</tr>
+<tr>
+<td>返回: addr 距离函数的偏移形式</td>
+<td>idc.get_func_off_str(addr)</td>
+</tr>
+<tr>
+<td>寻找函数结尾,如果函数存在则返回结尾地址,否则返回BADADDR</td>
+<td>idc.find_func_end(addr)</td>
+</tr>
+<tr>
+<td>设置函数结尾</td>
+<td>ida_funcs.set_func_end(ea, newend)      newend:新的结束地址</td>
+</tr>
+<tr>
+<td>设置函数开头</td>
+<td>ida_funcs.set_func_start(addr, newstart)</td>
+</tr>
+<tr>
+<td>设置地址处的名字</td>
+<td>idc.set_name(ea, name, SN_CHECK)                 Ex函数也使用set_name</td>
+</tr>
+<tr>
+<td>获取首个函数</td>
+<td>idc.get_prev_func(ea)</td>
+</tr>
+<tr>
+<td>获取下一个函数</td>
+<td>idc.get_next_func(ea)</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idautils</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> seg <span class="keyword">in</span> idautils.Segments():</span><br><span class="line">    segname = idc.get_segm_name(seg)</span><br><span class="line">    segstart = idc.get_segm_start(seg)</span><br><span class="line">    segend = idc.get_segm_end(seg)</span><br><span class="line">    <span class="keyword">if</span> (segname == <span class="string">&#x27;.text&#x27;</span>):</span><br><span class="line">        <span class="keyword">for</span> funcaddr <span class="keyword">in</span> Functions(segstart,segend):</span><br><span class="line">            funname = idc.get_func_name(funcaddr)</span><br><span class="line">            funend =  idc.find_func_end(funcaddr)</span><br><span class="line">            funnext = idc.get_next_func(funcaddr)</span><br><span class="line">            funnextname = idc.get_func_name(funnext)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;当前函数名: &quot;</span> + funname + <span class="string">&quot;当前结束地址: &quot;</span> + <span class="built_in">hex</span>(funend) +<span class="string">&quot;下一个函数地址: &quot;</span> + <span class="built_in">hex</span>(funnext) + <span class="string">&quot;下一个函数名: &quot;</span> + funnextname)</span><br><span class="line">ea = idc.get_screen_ea()</span><br><span class="line">funnextoffset = idc.get_func_off_str(ea)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;当前选择地址距离当前函数的偏移为: &quot;</span>+ funnextoffset)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%205.png" alt="Untitled"></p>
+<h2 id="数据查询"><a href="#数据查询" class="headerlink" title="数据查询"></a>数据查询</h2><p> 在IDAPython中如果我们想查询某些 数据 代码 二进制 都可以用都搜索函数。</p>
+<p>搜索函数可以是向上搜索 也可以是向下搜索. 搜索失败就会返回-1 也就是BADADDR。</p>
+<p>而搜索功能也常常用于去除花指令当中。</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查找二进制找到返回地址没找到返回-1(BADADDR)</td>
+<td>idc.find_binary(ea, flag, searchstr, radix=16, from_bc695=False)</td>
+</tr>
+<tr>
+<td>从ea开始寻找下一个数据地址</td>
+<td>ida_search.find_data(ea, sflag)</td>
+</tr>
+<tr>
+<td>从ea开始寻找下一个代码地址</td>
+<td>ida_search.find_code(ea, sflag)</td>
+</tr>
+<tr>
+<td>跳转到ea位置</td>
+<td>ida_kernwin.jumpto(ea)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>flags取值：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">SEARCH_DOWN 向下搜索</span><br><span class="line">SEARCH_UP 向上搜索</span><br><span class="line">SEARCH_NEXT 获取下一个找到的对象。</span><br><span class="line">SEARCH_CASE 指定大小写敏感度</span><br><span class="line">SEARCH_UNICODE 搜索 Unicode 字符串。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idautils</span><br><span class="line"></span><br><span class="line">addr = idc.here()</span><br><span class="line">value = idc.find_binary(ea,SEARCH_DOWN,<span class="string">&#x27;C4 00 C4&#x27;</span>)</span><br><span class="line">value1 = idc.find_code(ea,SEARCH_DOWN)</span><br><span class="line">value2 = idc.find_data(ea,SEARCH_DOWN)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;当前位置：&quot;</span>+<span class="built_in">hex</span>(addr))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;C4 00 C4 所在位置：&quot;</span>+<span class="built_in">hex</span>(value))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;下一处代码位置：&quot;</span>+<span class="built_in">hex</span>(value1))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;下一处数据位置：&quot;</span>+<span class="built_in">hex</span>(value2))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%206.png" alt="Untitled"></p>
+<h2 id="数据校验函数"><a href="#数据校验函数" class="headerlink" title="数据校验函数"></a>数据校验函数</h2><p>数据校验函数有一个参数flag，得到flag后可以直接进行校验</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取标志</td>
+<td>ida_bytes.get_full_flags(ea)</td>
+</tr>
+<tr>
+<td>判断是否为代码</td>
+<td>ida_bytes.is_code(f)                                                                     f即标志</td>
+</tr>
+<tr>
+<td>判断是否为数据</td>
+<td>ida_bytes.is_data(f)</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idautils</span><br><span class="line"><span class="keyword">import</span> ida_bytes</span><br><span class="line">addr = idc.here()</span><br><span class="line">value = idc.find_binary(ea,SEARCH_DOWN,<span class="string">&#x27;C4 00 C4&#x27;</span>)</span><br><span class="line">value1 = idc.find_code(ea,SEARCH_DOWN)</span><br><span class="line">value2 = idc.find_data(ea,SEARCH_DOWN)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;当前位置：&quot;</span>+<span class="built_in">hex</span>(addr))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;C4 00 C4 所在位置：&quot;</span>+<span class="built_in">hex</span>(value))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;下一处代码位置：&quot;</span>+<span class="built_in">hex</span>(value1))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;下一处数据位置：&quot;</span>+<span class="built_in">hex</span>(value2))</span><br><span class="line">flag1 = ida_bytes.get_full_flags(value1)</span><br><span class="line">flag2 = ida_bytes.get_full_flags(value2)</span><br><span class="line"><span class="comment">#print(flag)</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(<span class="built_in">hex</span>(value1)) +<span class="string">&quot;处是不是代码？：&quot;</span>  + <span class="built_in">str</span>(ida_bytes.is_code(flag1)))</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(<span class="built_in">hex</span>(value2)) +<span class="string">&quot;处是不是代码？：&quot;</span>  + <span class="built_in">str</span>(ida_bytes.is_code(flag2)))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%207.png" alt="Untitled"></p>
+<h2 id="交叉引用"><a href="#交叉引用" class="headerlink" title="交叉引用"></a>交叉引用</h2><p>在IDA的操作中 我们常常会对一个函数按X快捷键来查看谁引用了</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取地址处引用位置 A调用B 对B函数地址使用此函数则找到A调用 返回列表.遍历列表则可以找出所有引用位置. 参数1是ea也就是地址,参数2告诉IDA是否跟踪这些代码.</td>
+<td>idautils.CodeRefsTo(ea, flow)</td>
+</tr>
+<tr>
+<td>返回ea的代码引用了何处的代码. 返回一个列表</td>
+<td>idautils.CodeRefsFrom(ea, flow)</td>
+</tr>
+<tr>
+<td>返回一个列表告诉ea位置的数据被谁引用了</td>
+<td>idautils.DataRefsTo(ea)</td>
+</tr>
+<tr>
+<td>告诉我们ea引用了谁.</td>
+<td>idautils.DataRefsFrom(ea)</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idautils</span><br><span class="line"><span class="keyword">import</span> ida_bytes</span><br><span class="line">addr = idc.here()   </span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> CodeRefsTo(addr,<span class="literal">False</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">hex</span>(i))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;当前汇编: &quot;</span> + idc.GetDisasm(i))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/17/IDA%20Python%20%E5%B8%B8%E7%94%A8API%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/Untitled%208.png" alt="Untitled"></p>
+<p>除了上述通过地址来查找引用的方式外，还可以通过函数名来进行查找交叉引用：</p>
+<p>1、先通过<code>idc.get_name_ea_simple(fun_name)</code>找到函数的线性地址</p>
+<p>2、再使用<code>for i in CodeRefsTo(addr,False)</code>得到所有引用的地址</p>
+<p>一个例子：<a target="_blank" rel="noopener" href="https://hotspurzzz.github.io/2021/11/12/IDA-Python%20%E6%89%B9%E9%87%8F%E8%84%9A%E6%9C%AC%E5%88%86%E6%9E%90%E7%A8%8B%E5%BA%8F/">https://hotspurzzz.github.io/2021/11/12/IDA-Python 批量脚本分析程序/</a></p>
+<p>官网API文档：</p>
+<p><a target="_blank" rel="noopener" href="https://www.hex-rays.com/wp-content/static/products/ida/support/idapython_docs/">https://www.hex-rays.com/wp-content/static/products/ida/support/idapython_docs/</a></p>
+<p>参考链接：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/iBinary/p/14642662.html">https://www.cnblogs.com/iBinary/p/14642662.html</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/11/17/IDA Python 常用API（持续更新）/">http://example.com/2021/11/17/IDA Python 常用API（持续更新）/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/IDA/">IDA</a><a class="post-meta__tags" href="/tags/IDA-Python/">IDA Python</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2021/11/12/IDA-Python%20%E6%89%B9%E9%87%8F%E8%84%9A%E6%9C%AC%E5%88%86%E6%9E%90%E7%A8%8B%E5%BA%8F/"><span>IDA-Python 批量脚本分析程序</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
