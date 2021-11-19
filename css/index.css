@@ -176,7 +176,7 @@ table td {
   font-size: 14px;
   line-height: 20px;
   counter-reset: line;
-  white-space: pre-wrap;
+  white-space: normal;
 }
 figure.highlight {
   position: relative;
