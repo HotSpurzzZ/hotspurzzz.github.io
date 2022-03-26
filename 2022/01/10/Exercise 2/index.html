@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Fuzzing101 Exercise 2 - libexif - CVE-2009-3895&amp;CVE-2012-2836"><meta name="keywords" content="Fuzz,漏洞复现"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>Fuzzing101 Exercise 2 - libexif - CVE-2009-3895&amp;CVE-2012-2836 | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">开始模糊测试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8Eclipse-CDT%E8%B0%83%E8%AF%95"><span class="toc-number">3.</span> <span class="toc-text">使用Eclipse-CDT调试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93%E4%B8%8E%E5%BF%83%E5%BE%97"><span class="toc-number">4.</span> <span class="toc-text">实验总结与心得</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">7</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">10</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">5</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">Fuzzing101 Exercise 2 - libexif - CVE-2009-3895&amp;CVE-2012-2836</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-01-10</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Fuzz/">Fuzz</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p><a target="_blank" rel="noopener" href="https://github.com/antonio-morales/Fuzzing101/tree/main/Exercise%202">Fuzzing101/Exercise 2 at main · antonio-morales/Fuzzing101</a></p>
+<ul>
+<li>任务：在libexif中，找到两个crash  <strong><a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3895">CVE-2009-3895</a>&amp;****<a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2836">CVE-2012-2836</a></strong></li>
+<li>版本：libexif 0.6.14</li>
+<li><strong><a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3895">CVE-2009-3895</a>：</strong>一种基于堆的缓冲区溢出，可以用无效的 EXIF 图像触发。<ul>
+<li>漏洞描述：基于堆的缓冲区溢出是一种发生在堆数据区的缓冲区溢出，它通常与显式动态内存管理（使用 malloc() 和 free() 函数进行分配/释放）有关。因此，远程攻击者可以利用此问题在使用受影响库的应用程序上下文中执行任意代码。</li>
+</ul>
+</li>
+<li><strong><a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2836">CVE-2012-2836</a>：</strong>一个越界读取漏洞，可以通过带有精心制作的 EXIF 标签的图像触发。<ul>
+<li>漏洞描述：越界读取是当程序读取数据超过预期缓冲区的末尾或开头之前发生的漏洞。因此，它允许远程攻击者导致拒绝服务或可能从进程内存中获取潜在的敏感信息。</li>
+</ul>
+</li>
+<li>本地实验环境：<strong>虚拟机Ubuntu 20.04.3 LTS</strong></li>
+</ul>
+<hr>
+<p>AFL使用非确定性测试算法，因此两个模糊会话永远不会相同。因此作者强烈建议设置一个固定的种子(-s 123)。这样模糊结果将类似于这些显示，更容易跟随练习。</p>
+<p>作者建议使用<strong>Ubuntu 20.04.2 LTS</strong>，因为作者已在该环境下测试过，而且建议使用主机而不是虚拟机，以发挥AFL更好的性能</p>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><hr>
+<ul>
+<li>下载安装libexif-0.6.14</li>
+</ul>
+<p>新建目录</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span></span><br><span class="line">mkdir fuzzing_libexif &amp;&amp; <span class="built_in">cd</span> fuzzing_libexif/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/libexif/libexif/archive/refs/tags/libexif-0_6_14-release.tar.gz</span><br><span class="line">tar -xzvf libexif-0_6_14-release.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> libexif-libexif-0_6_14-release/</span><br><span class="line">sudo apt-get install autopoint libtool gettext libpopt-dev</span><br><span class="line">autoreconf -fvi</span><br><span class="line">./configure --enable-shared=no --prefix=<span class="string">&quot;<span class="variable">$HOME</span>/fuzzing_libexif/install/&quot;</span></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>选择libexif调用接口—exif</li>
+</ul>
+<p>由于 libexif 是一个库，因此我们需要另一个使用该库的应用程序，并将对其进行模糊测试。对于此任务，我们将使用<strong>exif</strong> 命令行。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/fuzzing_libexif</span><br><span class="line">wget https://github.com/libexif/exif/archive/refs/tags/exif-0_6_15-release.tar.gz</span><br><span class="line">tar -xzvf exif-0_6_15-release.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> exif-exif-0_6_15-release/</span><br><span class="line">autoreconf -fvi</span><br><span class="line">./configure --enable-shared=no --prefix=<span class="string">&quot;<span class="variable">$HOME</span>/fuzzing_libexif/install/&quot;</span> PKG_CONFIG_PATH=<span class="variable">$HOME</span>/fuzzing_libexif/install/lib/pkgconfig</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>测试是否安装成功：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$HOME</span>/fuzzing_libexif/install/bin/exif</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/10/Exercise%202/Untitled.png" alt="Untitled"></p>
+<ul>
+<li>建立种子语料库（<strong>Seed corpus</strong>）</li>
+</ul>
+<p>我们需要获取一些 exif 样本。我们将使用以下 repo 中的示例图像：<a target="_blank" rel="noopener" href="https://github.com/ianare/exif-samples">https</a> : <a target="_blank" rel="noopener" href="https://github.com/ianare/exif-samples">//github.com/ianare/exif-samples</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/fuzzing_libexif</span><br><span class="line">wget https://github.com/ianare/exif-samples/archive/refs/heads/master.zip</span><br><span class="line">unzip master.zip</span><br></pre></td></tr></table></figure>
+
+<p>之后，我们可以这样使用（举例）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$HOME</span>/fuzzing_libexif/install/bin/exif <span class="variable">$HOME</span>/fuzzing_libexif/exif-samples-master/jpg/Canon_40D_photoshop_import.jpg</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Afl-clang-lto</strong></li>
+</ul>
+<p>使用<strong>afl-clang-lto</strong>作为编译器来构建 libexif</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rm -r <span class="variable">$HOME</span>/fuzzing_libexif/install</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/fuzzing_libexif/libexif-libexif-0_6_14-release/</span><br><span class="line">make clean</span><br><span class="line"><span class="built_in">export</span> LLVM_CONFIG=<span class="string">&quot;llvm-config-11&quot;</span></span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=<span class="string">&quot;<span class="variable">$HOME</span>/fuzzing_libexif/install/&quot;</span></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/fuzzing_libexif/exif-exif-0_6_15-release</span><br><span class="line">make clean</span><br><span class="line"><span class="built_in">export</span> LLVM_CONFIG=<span class="string">&quot;llvm-config-11&quot;</span></span><br><span class="line">CC=afl-clang-lto ./configure --enable-shared=no --prefix=<span class="string">&quot;<span class="variable">$HOME</span>/fuzzing_libexif/install/&quot;</span> PKG_CONFIG_PATH=<span class="variable">$HOME</span>/fuzzing_libexif/install/lib/pkgconfig</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>一般来说，<em>afl-clang-lto</em>是最好的选择，因为它是一种无碰撞的仪器（<strong>instrumentation</strong>），而且比<em>afl-clang-fast 更快</em>。</p>
+<p>如果您不确定何时使用<em>afl-clang-lto</em>或<em>afl-clang-fast，</em>您可以查看从<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus#1-instrumenting-that-target">AFLplusplus</a>提取的下图来选择</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">+--------------------------------+</span><br><span class="line">| clang/clang++ 11+ is available | --&gt; use LTO mode (afl-clang-lto/afl-clang-lto++)</span><br><span class="line">+--------------------------------+     see [instrumentation/README.lto.md](instrumentation/README.lto.md)</span><br><span class="line">    |</span><br><span class="line">    | <span class="keyword">if</span> not, or <span class="keyword">if</span> the target fails with LTO afl-clang-lto/++</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line">+---------------------------------+</span><br><span class="line">| clang/clang++ 6.0+ is available | --&gt; use LLVM mode (afl-clang-fast/afl-clang-fast++)</span><br><span class="line">+---------------------------------+     see [instrumentation/README.llvm.md](instrumentation/README.llvm.md)</span><br><span class="line">    |</span><br><span class="line">    | <span class="keyword">if</span> not, or <span class="keyword">if</span> the target fails with LLVM afl-clang-fast/++</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line"> +--------------------------------+</span><br><span class="line"> | gcc 5+ is available            | -&gt; use GCC_PLUGIN mode (afl-gcc-fast/afl-g++-fast)</span><br><span class="line"> +--------------------------------+    see [instrumentation/README.gcc_plugin.md](instrumentation/README.gcc_plugin.md) and</span><br><span class="line">                                       [instrumentation/README.instrument_list.md](instrumentation/README.instrument_list.md)</span><br><span class="line">    |</span><br><span class="line">    | <span class="keyword">if</span> not, or <span class="keyword">if</span> you <span class="keyword">do</span> not have a gcc with plugin support</span><br><span class="line">    |</span><br><span class="line">    v</span><br><span class="line">   use GCC mode (afl-gcc/afl-g++) (or afl-clang/afl-clang++ <span class="keyword">for</span> clang)</span><br></pre></td></tr></table></figure>
+
+<h1 id="开始模糊测试"><a href="#开始模糊测试" class="headerlink" title="开始模糊测试"></a>开始模糊测试</h1><hr>
+<p>运行fuzz</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">afl-fuzz -i <span class="variable">$HOME</span>/fuzzing_libexif/exif-samples-master/jpg/ -o <span class="variable">$HOME</span>/fuzzing_libexif/out/ -s 123 -- <span class="variable">$HOME</span>/fuzzing_libexif/install/bin/exif @@</span><br></pre></td></tr></table></figure>
+
+<p>可以发现许多crash</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%201.png" alt="Untitled"></p>
+<h1 id="使用Eclipse-CDT调试"><a href="#使用Eclipse-CDT调试" class="headerlink" title="使用Eclipse-CDT调试"></a>使用Eclipse-CDT调试</h1><p>安装JAVA-SDK</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt install default-jdk</span><br></pre></td></tr></table></figure>
+
+<p>下载Eclipse：<a target="_blank" rel="noopener" href="https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2021-12/R/eclipse-cpp-2021-12-R-linux-gtk-x86_64.tar.gz">https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2021-12/R/eclipse-cpp-2021-12-R-linux-gtk-x86_64.tar.gz</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar -xzvf eclipse-cpp-2021-03-R-linux-gtk-x86_64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>完成这两步后，打开Eclipse — File — Import — C/C++ — “Existing code as makefile project”</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%202.png" alt="Untitled"></p>
+<p>之后选择Linux GCC 并选择exif源码文件夹</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%203.png" alt="Untitled"></p>
+<p>之后可以在项目资源管理器中看到exif文件夹。</p>
+<p>现在要配置调试的参数。Run — Debug Configurations，选择我们的exif项目及exif二进制文件</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%204.png" alt="Untitled"></p>
+<p>之后要设置Arguments，我们找到刚才AFL产生的crash路径，选一条复制进去</p>
+<p>【至于选择哪一条，这里确实不太明白】</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%205.png" alt="Untitled"></p>
+<p>点击Debug后，程序会停在main函数开头</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%206.png" alt="Untitled"></p>
+<p>Run — Resume 检测到分段错误时会自动停止运行</p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%207.png" alt="Untitled"></p>
+<h1 id="实验总结与心得"><a href="#实验总结与心得" class="headerlink" title="实验总结与心得"></a>实验总结与心得</h1><hr>
+<ol>
+<li>每次fuzz，不管时间是多少，产生crash数量与类型都是不同的。</li>
+<li>多个crash，可能指向的代码点是同一处。</li>
+<li>作者指出的这两处CVE的溢出点，我在fuzz产生的crash调试时，都没有发现（即使第二次fuzz了3个小时，产生了30个crash，也没有发现）</li>
+</ol>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/01/10/Exercise 2/">http://example.com/2022/01/10/Exercise 2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Fuzz/">Fuzz</a><a class="post-meta__tags" href="/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">漏洞复现</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2021/11/29/Fuzzing101%20Exercise%201%20-%20Xpdf%20-%20CVE-2019-13288/"><span>Fuzzing101 Exercise 1 - Xpdf - CVE-2019-13288</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
