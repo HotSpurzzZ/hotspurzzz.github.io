@@ -44,7 +44,7 @@
 <p>测试是否安装成功：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$HOME</span>/fuzzing_libexif/install/bin/exif</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2022/01/10/Exercise%202/Untitled.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled.png"></p>
 <ul>
 <li>建立种子语料库（<strong>Seed corpus</strong>）</li>
 </ul>
@@ -71,7 +71,7 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">afl-fuzz -i <span class="variable">$HOME</span>/fuzzing_libexif/exif-samples-master/jpg/ -o <span class="variable">$HOME</span>/fuzzing_libexif/out/ -s 123 -- <span class="variable">$HOME</span>/fuzzing_libexif/install/bin/exif @@</span><br></pre></td></tr></table></figure>
 
 <p>可以发现许多crash</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%201.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%201.png"></p>
 <h1 id="使用Eclipse-CDT调试"><a href="#使用Eclipse-CDT调试" class="headerlink" title="使用Eclipse-CDT调试"></a>使用Eclipse-CDT调试</h1><p>安装JAVA-SDK</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt install default-jdk</span><br></pre></td></tr></table></figure>
 
@@ -79,19 +79,19 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar -xzvf eclipse-cpp-2021-03-R-linux-gtk-x86_64.tar.gz</span><br></pre></td></tr></table></figure>
 
 <p>完成这两步后，打开Eclipse — File — Import — C/C++ — “Existing code as makefile project”</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%202.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%202.png"></p>
 <p>之后选择Linux GCC 并选择exif源码文件夹</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%203.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%203.png"></p>
 <p>之后可以在项目资源管理器中看到exif文件夹。</p>
 <p>现在要配置调试的参数。Run — Debug Configurations，选择我们的exif项目及exif二进制文件</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%204.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%204.png"></p>
 <p>之后要设置Arguments，我们找到刚才AFL产生的crash路径，选一条复制进去</p>
 <p>【至于选择哪一条，这里确实不太明白】</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%205.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%205.png"></p>
 <p>点击Debug后，程序会停在main函数开头</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%206.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%206.png"></p>
 <p>Run — Resume 检测到分段错误时会自动停止运行</p>
-<p><img src="/2022/01/10/Exercise%202/Untitled%207.png" alt="Untitled"></p>
+<p><img src="/2022/01/10/Exercise%202/Untitled%207.png"></p>
 <h1 id="实验总结与心得"><a href="#实验总结与心得" class="headerlink" title="实验总结与心得"></a>实验总结与心得</h1><hr>
 <ol>
 <li>每次fuzz，不管时间是多少，产生crash数量与类型都是不同的。</li>
