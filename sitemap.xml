@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/04/04/Pande%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/</loc>
+    
+    <lastmod>2022-04-05</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://example.com/2022/03/26/Panda%E5%AE%89%E8%A3%85%E5%8F%8A%E5%9F%BA%E7%A1%80/</loc>
     
     <lastmod>2022-04-05</lastmod>
@@ -10,13 +17,6 @@
   
   <url>
     <loc>http://example.com/2022/01/10/Exercise%202/</loc>
-    
-    <lastmod>2022-04-05</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://example.com/2022/04/04/Pande%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/</loc>
     
     <lastmod>2022-04-05</lastmod>
     
