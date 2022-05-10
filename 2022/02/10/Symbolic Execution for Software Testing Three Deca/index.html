@@ -38,7 +38,7 @@
 <ul>
 <li>当符号执行遇到一个输入语句时，形式为<code>var = sym_input()</code>，符号执行将为符号状态<strong>σ</strong>添加映射：<img src="http://latex.codecogs.com/svg.latex?var \rightarrow s"></li>
 </ul>
-<p> 其中<img src="https://render.githubusercontent.com/render/math?math=s"> 是一个新的未约束的符号值。</p>
+<p> 其中<img src="http://latex.codecogs.com/svg.latex?s"> 是一个新的未约束的符号值。</p>
 <p>例如，对于上面的例子，在执行第16、17行：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"> x = sym_input();</span><br><span class="line"> y = sym_input();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
@@ -49,11 +49,11 @@
 <p>例如，对于上面的例子，在执行第6行：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span><span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span> * v;</span><br><span class="line">&#125;</span><br><span class="line">    z = twice(y);</span><br></pre></td></tr></table></figure>
 
-<p>后，符号状态$σ ={x \rightarrow x_0,y \rightarrow y_0, z \rightarrow 2y_0}$</p>
+<p>后，符号状态<img src="http://latex.codecogs.com/svg.latex?\sigma=\{x \rightarrow x_0,y \rightarrow y_0\, z \rightarrow 2y_0\}"></p>
 <ul>
 <li>当符号执行遇到一个条件语句<code>if(e)  S1  else  S2</code>，PC会有两种更新：<ol>
-<li>首先更新PC（表示then分支）为：$PC = PC  \Lambda  \sigma(e)$ </li>
-<li>之后建立一个路径约束(<strong>else</strong>语句)PC‘：$PC^{’} = PC \Lambda \lnot\sigma(e)$ </li>
+<li>首先更新PC（表示then分支）为：<img src="http://latex.codecogs.com/svg.latex?PC = PC  \Lambda  \sigma(e)"></li>
+<li>之后建立一个路径约束(else语句)PC‘：<img src="http://latex.codecogs.com/svg.latex?PC^{’} = PC \Lambda \lnot\sigma(e)"></li>
 </ol>
 <ul>
 <li>如果PC可以满足对符号值的某些分配，给一些实际值，那么符号执行继续沿着then这条分支执行下去，且符号状态为σ和符号路径约束为PC；</li>
@@ -66,9 +66,9 @@
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">z = twice(y);</span><br><span class="line"><span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">        ERROR;</span><br></pre></td></tr></table></figure>
 
 <p>在第7行，会创建两个路径约束实例，路径约束分别为：</p>
-<p>$x_0 = 2y_0$      和   $x_0 \neq 2y_0$</p>
+<p><img src="http://latex.codecogs.com/svg.latex?x_0 = 2y_0">      和   <img src="http://latex.codecogs.com/svg.latex?x_0 \neq 2y_0"></p>
 <p>在第7行，会创建两个路径约束实例，路径约束分别为：</p>
-<p>$(x_0 = 2y_0)\Lambda(x_0&gt;y_0+10)$      和    $(x_0 = 2y_0)\Lambda(x_0 \leq y_0+10)$</p>
+<p><img src="http://latex.codecogs.com/svg.latex?(x_0 = 2y_0)\Lambda(x_0>y_0+10)">      和    <img src="http://latex.codecogs.com/svg.latex?(x_0 = 2y_0)\Lambda(x_0 \leq y_0+10)"></p>
 <ul>
 <li>当符号执行遇到exit语句或错误（程序崩溃、违反断言等），将终止符号执行的当前实例，利用约束求解器对当前符号路径约束<strong>PC</strong>得到一个可满足的值，该值就构成了测试用例输入。  即：如果程序执行这些可满足的实际值，就会采用与符号执行完全相同的路径，并以相同的方式结束。</li>
 <li>当符号执行遇到循环和递归时，符号执行可能会导致无限多条路径，如下图：</li>
@@ -76,8 +76,8 @@
 <p><img src="/2022/02/10/Symbolic%20Execution%20for%20Software%20Testing%20Three%20Deca/Untitled%201.png"></p>
 <p>这段代码就有无数条执行路径，每条路径的可能性有两种：①任意数量的True加上一个False结尾；②无穷多数量的True。</p>
 <p>对于这种情况：</p>
-<p>符号路径约束$PC =(\wedge_ {i\in [1,n]}N_{i} &gt;0) \wedge (N_{n+1}\leq 10)$  其中每个$N_{i}$都是一个新的符号值</p>
-<p>执行结尾符号状态 ****$\sigma ={N \rightarrow N_{n+1} , sum \rightarrow \sum Ni}$</p>
+<p>符号路径约束<img src="http://latex.codecogs.com/svg.latex?PC =(\wedge_ {i\in [1,n]}N_{i} >0) \wedge (N_{n+1}\leq 10)">  其中每个$N_{i}$都是一个新的符号值</p>
+<p>执行结尾符号状态 <img src="http://latex.codecogs.com/svg.latex?\sigma =\{N \rightarrow N_{n+1} , sum \rightarrow \sum Ni\}"></p>
 <p>在实践中，需要对搜索进行限制（时间超时、路径数、循环迭代次数、搜索深度等）</p>
 <h3 id="静态符号执行的缺点"><a href="#静态符号执行的缺点" class="headerlink" title="静态符号执行的缺点"></a>静态符号执行的缺点</h3><ul>
 <li>关键缺点：当符号执行得到的约束不能被约束求解器求解时，就无法生产输入</li>
@@ -87,12 +87,16 @@
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span> <span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> (v∗v) % <span class="number">50</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>则符号执行到twice函数时，会产生两个路径约束：</p>
-<p>$x_0 \neq (y_0y_0)mod50$</p>
-<p>$x_0 = (y_0y_0)mod50$</p>
+<img src="http://latex.codecogs.com/svg.latex?x_0 \neq (y_0y_0)mod50">
+
+<img src="http://latex.codecogs.com/svg.latex?x_0 = (y_0y_0)mod50">
+
 <p>② 假设twice函数不可用（例如没有函数源码），则会产生两个路径约束：</p>
-<p>$x_0 \neq twice(y_0)$</p>
-<p>$x_0=twice(y_0)$</p>
-<p>其中，$twice$是一个未解释的函数</p>
+<img src="http://latex.codecogs.com/svg.latex?x_0 \neq twice(y_0)">
+
+<img src="http://latex.codecogs.com/svg.latex?x_0=twice(y_0)">
+
+<p>其中，<img src="http://latex.codecogs.com/svg.latex?twice">是一个未解释的函数</p>
 <p>在这两种情况下，约束求解器无法解决任何这些约束，符号执行将无法为修改后的程序生成任何输入。</p>
 <p>为了缓解这个问题，研究者提出了混合符号执行 concolic execution（实际执行+符号执行）的方法，这是一种动态的符号执行，可以为修改后的程序生产一些输入。</p>
 <h2 id="混合符号执行（Concolic-Execution）"><a href="#混合符号执行（Concolic-Execution）" class="headerlink" title="混合符号执行（Concolic Execution）"></a>混合符号执行（Concolic Execution）</h2><hr>
@@ -110,9 +114,9 @@
 <p>还是以上面的程序为例：</p>
 <ol>
 <li>首先，Concolic Execution先产生一些随机输入，例如{x = 22, y = 7}</li>
-<li>之后，同时具体地和符号化地执行程序。 当实际执行到第7行的else分支时，符号执行会在该执行路径生成路径约束$x_0 \neq 2y_0$</li>
-<li>之后，Concolic Execution会将路径约束的连接词取反，得到$x_0= 2y_0$，并求解，可得到一种测试用例输入：{x = 2, y = 1}</li>
-<li>通过这个新的测试用例输入，Concolic Execution会得到并进入新的路径，并同时开启新的实际执行与符号执行。 在本例中，就会进入到第7行的then分支和第8行的else分支，此时就会产生新的路径约束：$(x_0=2y_0) \Lambda (x_0 \leq y_0+10)$，对于此约束进行约束求解，生成新的测试输入，可以让程序继续执行之前没有执行过的路径；而再对该约束取反，得到：$(x_0=2y_0) \Lambda (x_0 &gt; y_0+10)$，就可以探索到新的路径，例如：{x = 30, y = 15}，使用这个测试输入，程序会触发第9行的ERROR。</li>
+<li>之后，同时具体地和符号化地执行程序。 当实际执行到第7行的else分支时，符号执行会在该执行路径生成路径约<img src="http://latex.codecogs.com/svg.latex?x_0 \neq 2y_0"></li>
+<li>之后，Concolic Execution会将路径约束的连接词取反，得到<img src="http://latex.codecogs.com/svg.latex?x_0= 2y_0">，并求解，可得到一种测试用例输入：{x = 2, y = 1}</li>
+<li>通过这个新的测试用例输入，Concolic Execution会得到并进入新的路径，并同时开启新的实际执行与符号执行。 在本例中，就会进入到第7行的then分支和第8行的else分支，此时就会产生新的路径约束：<img src="http://latex.codecogs.com/svg.latex?(x_0=2y_0) \Lambda (x_0 \leq y_0+10)">，对于此约束进行约束求解，生成新的测试输入，可以让程序继续执行之前没有执行过的路径；而再对该约束取反，得到：<img src="http://latex.codecogs.com/svg.latex?(x_0=2y_0) \Lambda (x_0 > y_0+10)">，就可以探索到新的路径，例如：{x = 30, y = 15}，使用这个测试输入，程序会触发第9行的ERROR。</li>
 <li>通过这三次执行程序，Concolic Execution已经覆盖了程序的所有路径，并停止生产测试用例输入</li>
 </ol>
 <p>注意，这里使用“深度优先”的搜索策略来探索所有的执行路径；我们也可以使用其他策略来探索不同顺序的路径。</p>
@@ -122,20 +126,20 @@
 <p>如果是实际值，那么就按照程序本身执行；相反，如果至少有一个值是符号化的，则通过更新当前路径的路径条件以符号方式执行。</p>
 <h3 id="例子-2"><a href="#例子-2" class="headerlink" title="例子"></a>例子</h3><p>还是以上面的程序为例，在第17行处，如果把<code>y**=**sym input()</code> 改为 <code>y = 10</code>，那么第6行<code>z **=**twice (y);</code> 函数将使用具体值 “20”来调用函数twice(20)，完成实际执行。</p>
 <p>之后，第7行<code>if (z == x)</code>将变为<code>if (20 == x)</code>    </p>
-<p>约束$x=20$，程序走then分支</p>
-<p>约束$x \neq 20$，程序走else分支</p>
+<p>约束<img src="http://latex.codecogs.com/svg.latex?x=20">，程序走then分支</p>
+<p>约束<img src="http://latex.codecogs.com/svg.latex?x \neq 20">，程序走else分支</p>
 <p>注意，在then分支，程序走到第8行为<code>if (x &gt; 20)</code>， 由于x = 20，则无法往下继续走。</p>
 <p>总之，混合符号执行Concolic Execution与执行生成测试EGT，主要的贡献都是结合了实际执行与符号执行，缓解了传统符号执行的缺点。它们都是动态符号执行的范畴。</p>
 <h2 id="动态符号执行的缺点"><a href="#动态符号执行的缺点" class="headerlink" title="动态符号执行的缺点"></a>动态符号执行的缺点</h2><hr>
 <p>动态符号执行的优点是：可以使用具体值，来降低与外部代码交互或约束求解超时所导致的不精确性，这缓解了传统符号执行遇到的问题。但是这个过程遇到的问题是，会丢失一些执行路径，从而牺牲了完整性。</p>
 <ul>
-<li>先回顾一下Concolic Execution是怎样解决静态符号执行的缺点的：  例如，在上面的代码例子中，将twice函数进行改变：返回值改为<code>(v*v)%50</code>  ，而且程序执行的初试随机值为{x = 22, y = 7}，则针对该随机输入，生成的路径约束为 $x_{0}\ne (y_{0} y_{0}) mod 50$  假设约束求解器不能解决非线性约束，则Concolic Execution将无法为替代执行路径生成输入。当函数twice的源代码不可用时（是某个第三方库函数或系统调用），会出现类似情况，此时，路径约束为$x_0 \neq twice(y_0)$ ，其中$twice$是一个未解释的函数。  以上是前文静态符号执行的缺点，混合符号执行Concolic Execution会通过使用实际值替换符号值的方式解决这个问题。例如，将$y0$使用实际值 “7” 替换。那么上面的路径约束就简化为：$x_0 \neq 49$ ，求解该约束，可以得到一个探索新路径的输入：{x = 49, y = 7}。以此解决了传统符号执行（静态符号执行）的缺点。</li>
+<li>先回顾一下Concolic Execution是怎样解决静态符号执行的缺点的：  例如，在上面的代码例子中，将twice函数进行改变：返回值改为<code>(v*v)%50</code>  ，而且程序执行的初试随机值为{x = 22, y = 7}，则针对该随机输入，生成的路径约束为 <img src="http://latex.codecogs.com/svg.latex?x_{0}\ne (y_{0} y_{0}) mod 50">  假设约束求解器不能解决非线性约束，则Concolic Execution将无法为替代执行路径生成输入。当函数twice的源代码不可用时（是某个第三方库函数或系统调用），会出现类似情况，此时，路径约束为<img src="http://latex.codecogs.com/svg.latex?x_0 \neq twice(y_0)"> ，其中&lt;img src=”<a target="_blank" rel="noopener" href="http://latex.codecogs.com/svg.latex?twice$%E6%98%AF%E4%B8%80%E4%B8%AA%E6%9C%AA%E8%A7%A3%E9%87%8A%E7%9A%84%E5%87%BD%E6%95%B0%E3%80%82">http://latex.codecogs.com/svg.latex?twice$是一个未解释的函数。</a>  以上是前文静态符号执行的缺点，混合符号执行Concolic Execution会通过使用实际值替换符号值的方式解决这个问题。例如，将<img src="http://latex.codecogs.com/svg.latex?y0">使用实际值 “7” 替换。那么上面的路径约束就简化为：<img src="http://latex.codecogs.com/svg.latex?x_0 \neq 49"> ，求解该约束，可以得到一个探索新路径的输入：{x = 49, y = 7}。以此解决了传统符号执行（静态符号执行）的缺点。</li>
 </ul>
 <p>但是，这个例子中，无法生成路径true, false的输入，即在代码：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testme</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">    z = twice(y);</span><br><span class="line">    <span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">            ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>中，符合if (z == x)，但又不符合if (x &gt; y + 10)，进不去ERROR</p>
-<p>即：无法生成对于约束$x_{0}= (y_{0} y_{0}) mod 50\wedge (x_{0}\leq y_{0}+10)$的测试输入，因为$y_0$的值已经被实际化为“7”了。因此会造成路径的丢失，失去了路径完整性。</p>
+<p>即：无法生成对于约束<img src="http://latex.codecogs.com/svg.latex?x_{0}= (y_{0} y_{0}) mod 50\wedge (x_{0}\leq y_{0}+10)">的测试输入，因为<img src="http://latex.codecogs.com/svg.latex?y_0">的值已经被实际化为“7”了。因此会造成路径的丢失，失去了路径完整性。</p>
 <p>但是相比与传统符号执行遇到不受支持的操作或外部调用问题时直接终止执行，混合符号执行Concolic Execution的方法还是更可取。</p>
 <h2 id="符号执行的挑战"><a href="#符号执行的挑战" class="headerlink" title="符号执行的挑战"></a>符号执行的挑战</h2><hr>
 <h3 id="一、路径爆炸"><a href="#一、路径爆炸" class="headerlink" title="一、路径爆炸"></a>一、路径爆炸</h3><p>符号执行的关键挑战之一就是路径爆炸问题。除了较小的程序外，所有程序中都有大量的程序路径，这通常是代码中静态分支数量的指数级。限制符号执行时间及循环迭代次数都可以缓解这一问题，主要的方法包括：</p>
