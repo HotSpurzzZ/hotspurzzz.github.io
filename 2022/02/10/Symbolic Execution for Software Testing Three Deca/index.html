@@ -42,9 +42,9 @@
 <p>例如，对于上面的例子，在执行第16、17行：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"> x = sym_input();</span><br><span class="line"> y = sym_input();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>后，符号状态&lt;img src=”<a target="_blank" rel="noopener" href="http://latex.codecogs.com/svg.latex?$%CF%83">http://latex.codecogs.com/svg.latex?$σ</a>  ={x \rightarrow x_0,y \rightarrow y_0}$，其中$x_0，y_0$是新的未约束的符号值。</p>
+<p>后，符号状态<img src="http://latex.codecogs.com/svg.latex?\sigma=\{x \rightarrow x_0,y \rightarrow y_0\}">，其中$x_0，y_0$是新的未约束的符号值。</p>
 <ul>
-<li>当符号执行遇到一个赋值语句时，形式为<code>v = e</code>，符号执行将为符号状态<strong>σ</strong>添加映射：$v \rightarrow σ(e)$，其中$σ(e)$就是在当前符号化状态计算e得到的符号表达式。</li>
+<li>当符号执行遇到一个赋值语句时，形式为<code>v = e</code>，符号执行将为符号状态<strong>σ</strong>添加映射：<img src="http://latex.codecogs.com/svg.latex?v \rightarrow \sigma(e)">，其中$σ(e)$就是在当前符号化状态计算e得到的符号表达式。</li>
 </ul>
 <p>例如，对于上面的例子，在执行第6行：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span><span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span> * v;</span><br><span class="line">&#125;</span><br><span class="line">    z = twice(y);</span><br></pre></td></tr></table></figure>
