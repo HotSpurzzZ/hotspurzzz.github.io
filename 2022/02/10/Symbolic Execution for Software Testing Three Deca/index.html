@@ -33,16 +33,16 @@
 <p><img src="/2022/02/10/Symbolic%20Execution%20for%20Software%20Testing%20Three%20Deca/Untitled.png"></p>
 <p>可以看到<code>void testme(int x, int y)</code>函数存在三条执行路径；上图表示这对应的执行树。</p>
 <p>当符号执行开始执行时：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**符号状态 σ = 空集</span><br><span class="line">符号路径约束 PC = True**</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">符号状态 σ = 空集</span><br><span class="line">符号路径约束 PC = True</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>当符号执行遇到一个输入语句时，形式为<code>var = sym_input()</code>，符号执行将为符号状态<strong>σ</strong>添加映射：<img src="http://latex.codecogs.com/svg.latex?$var \\rightarrow s$"></li>
+<li>当符号执行遇到一个输入语句时，形式为<code>var = sym_input()</code>，符号执行将为符号状态<strong>σ</strong>添加映射：<img src="http://latex.codecogs.com/svg.latex?$var \rightarrow s$"></li>
 </ul>
 <p> 其中$s$ 是一个新的未约束的符号值。</p>
 <p>例如，对于上面的例子，在执行第16、17行：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"> x = sym_input();</span><br><span class="line"> y = sym_input();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>后，符号状态$σ  ={x \rightarrow x_0,y \rightarrow y_0}$，其中$x_0，y_0$是新的未约束的符号值。</p>
+<p>后，符号状态&lt;img src=”<a target="_blank" rel="noopener" href="http://latex.codecogs.com/svg.latex?$%CF%83">http://latex.codecogs.com/svg.latex?$σ</a>  ={x \rightarrow x_0,y \rightarrow y_0}$，其中$x_0，y_0$是新的未约束的符号值。</p>
 <ul>
 <li>当符号执行遇到一个赋值语句时，形式为<code>v = e</code>，符号执行将为符号状态<strong>σ</strong>添加映射：$v \rightarrow σ(e)$，其中$σ(e)$就是在当前符号化状态计算e得到的符号表达式。</li>
 </ul>
