@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="论文阅读--&quot;Symbolic Execution for Software Testing&quot;"><meta name="keywords" content="符号执行，论文阅读"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>论文阅读--&quot;Symbolic Execution for Software Testing&quot; | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E5%85%B3%E9%94%AE%E6%80%9D%E6%83%B3"><span class="toc-number">1.</span> <span class="toc-text">符号执行关键思想</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%80%9D%E6%83%B3"><span class="toc-number">1.1.</span> <span class="toc-text">关键思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E8%A1%A8%E8%BE%BE%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.</span> <span class="toc-text">程序表达方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E6%80%9D%E8%B7%AF%E4%B8%8E%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">符号执行思路与过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90"><span class="toc-number">2.1.</span> <span class="toc-text">例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-number">2.2.</span> <span class="toc-text">静态符号执行的缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B7%E5%90%88%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%EF%BC%88Concolic-Execution%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">混合符号执行（Concolic Execution）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">执行过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90-1"><span class="toc-number">3.2.</span> <span class="toc-text">例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E7%94%9F%E6%88%90%E6%B5%8B%E8%AF%95-EGT"><span class="toc-number">4.</span> <span class="toc-text">执行生成测试(EGT)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E5%AD%90-2"><span class="toc-number">4.1.</span> <span class="toc-text">例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-number">5.</span> <span class="toc-text">动态符号执行的缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E7%9A%84%E6%8C%91%E6%88%98"><span class="toc-number">6.</span> <span class="toc-text">符号执行的挑战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%B7%AF%E5%BE%84%E7%88%86%E7%82%B8"><span class="toc-number">6.1.</span> <span class="toc-text">一、路径爆炸</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3"><span class="toc-number">6.2.</span> <span class="toc-text">二、约束求解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%86%85%E5%AD%98%E5%BB%BA%E6%A8%A1"><span class="toc-number">6.3.</span> <span class="toc-text">三、内存建模</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91%E6%80%A7"><span class="toc-number">7.</span> <span class="toc-text">四、处理并发性</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">11</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">13</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">6</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">论文阅读--&quot;Symbolic Execution for Software Testing&quot;</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-02-10</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/">符号执行</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>该论文以较为通俗的语言和简单的例子阐述了符号执行的基本原理，并介绍了符号执行技术的发展历程和面临挑战。通过本文，可以基本的了解符号执行</p>
+<span id="more"></span>
+<p>软件测试环境中，符号执行的一个关键目标是在一定的时间内探索尽可能多的不同程序路径，并为每一条路径：</p>
+<p>（1）生成一组具体的输入值来执行该路径</p>
+<p>（2）检查是否存在各种错误，包括断言违规、未捕获的异常、安全漏洞、内存损坏等</p>
+<h2 id="符号执行关键思想"><a href="#符号执行关键思想" class="headerlink" title="符号执行关键思想"></a>符号执行关键思想</h2><hr>
+<h3 id="关键思想"><a href="#关键思想" class="headerlink" title="关键思想"></a>关键思想</h3><p>符号执行关键思想：使用符号值，而不是具体的数据值作为输入，并将程序变量的值表示为符号表达式，而不是符号输入值。那么，程序的输出值为符号输入值的一种函数 function(symbolic_input_values)。</p>
+<h3 id="程序表达方式"><a href="#程序表达方式" class="headerlink" title="程序表达方式"></a>程序表达方式</h3><p>具体而言，符号执行为程序每个执行路径生产测试用例。而程序的执行路径可以分为true和false的序列，在序列的第i个位置为true则表示第i个条件判断语句执行then分支，若为false则执行else分支。</p>
+<p>每个程序的执行路径都可以用执行树来表达，后面会通过例子理解。</p>
+<p>符号执行的目标就是生成一组输入，在一定的时间内遍历尽可能多的路径。</p>
+<h2 id="符号执行思路与过程"><a href="#符号执行思路与过程" class="headerlink" title="符号执行思路与过程"></a>符号执行思路与过程</h2><hr>
+<p>符号执行拥有两个变量：</p>
+<ul>
+<li><strong>符号状态 σ</strong> ：表示变量到符号表达式的<strong>映射集合</strong></li>
+<li><strong>符号路径约束 PC</strong> ：是符号表达式的无量词的一阶式</li>
+</ul>
+<p>在符号开始之前，符号状态 σ 为空集，PC 初始化为 <code>True</code></p>
+<p>当一条路径执行结束时，使用约束求解器求解PC，可以生成具体的输入值。（对于该输入值，如果程序以其作为输入，程序将执行与符号执行完全相同的路径并以相同的方式终止）</p>
+<p>那么符号状态 σ和符号路径约束 PC是怎么变化的呢？</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span><span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span> * v;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testme</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">    z = twice(y);</span><br><span class="line">    <span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">            ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    x = sym_input();</span><br><span class="line">    y = sym_input();</span><br><span class="line">    testme(x, y);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/02/10/Symbolic%20Execution%20for%20Software%20Testing%20Three%20Deca/Untitled.png"></p>
+<p>可以看到<code>void testme(int x, int y)</code>函数存在三条执行路径；上图表示这对应的执行树。</p>
+<p>当符号执行开始执行时：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**符号状态 σ = 空集</span><br><span class="line">符号路径约束 PC = True**</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当符号执行遇到一个输入语句时，形式为<code>var = sym_input()</code>，符号执行将为符号状态<strong>σ</strong>添加映射：$var \rightarrow s$  其中$s$ 是一个新的未约束的符号值。</li>
+</ul>
+<p>例如，对于上面的例子，在执行第16、17行：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"> x = sym_input();</span><br><span class="line"> y = sym_input();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>后，符号状态$σ  ={x \rightarrow x_0,y \rightarrow y_0}$，其中$x_0，y_0$是新的未约束的符号值。</p>
+<ul>
+<li>当符号执行遇到一个赋值语句时，形式为<code>v = e</code>，符号执行将为符号状态<strong>σ</strong>添加映射：$v \rightarrow σ(e)$，其中$σ(e)$就是在当前符号化状态计算e得到的符号表达式。</li>
+</ul>
+<p>例如，对于上面的例子，在执行第6行：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span><span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span> * v;</span><br><span class="line">&#125;</span><br><span class="line">    z = twice(y);</span><br></pre></td></tr></table></figure>
+
+<p>后，符号状态$σ ={x \rightarrow x_0,y \rightarrow y_0, z \rightarrow 2y_0}$</p>
+<ul>
+<li>当符号执行遇到一个条件语句<code>if(e)  S1  else  S2</code>，PC会有两种更新：<ol>
+<li>首先更新PC（表示then分支）为：$PC = PC  \Lambda  \sigma(e)$ </li>
+<li>之后建立一个路径约束(<strong>else</strong>语句)PC‘：$PC^{’} = PC \Lambda \lnot\sigma(e)$ </li>
+</ol>
+<ul>
+<li>如果PC可以满足对符号值的某些分配，给一些实际值，那么符号执行继续沿着then这条分支执行下去，且符号状态为σ和符号路径约束为PC；</li>
+<li>同样，如果PC’可满足，PC‘则使用符号状态σ和符号路径约束PC’创建另一个符号执行的实例，并沿着“else”分支继续执行；</li>
+<li>与直接执行程序所不同的是，符号执行的两个分支都可以执行，从而产生两条路径；如果没有满足的分支PC，符号执行将终止</li>
+</ul>
+</li>
+</ul>
+<p>例如，对于上面的例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">z = twice(y);</span><br><span class="line"><span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">        ERROR;</span><br></pre></td></tr></table></figure>
+
+<p>在第7行，会创建两个路径约束实例，路径约束分别为：</p>
+<p>$x_0 = 2y_0$      和   $x_0 \neq 2y_0$</p>
+<p>在第7行，会创建两个路径约束实例，路径约束分别为：</p>
+<p>$(x_0 = 2y_0)\Lambda(x_0&gt;y_0+10)$      和    $(x_0 = 2y_0)\Lambda(x_0 \leq y_0+10)$</p>
+<ul>
+<li>当符号执行遇到exit语句或错误（程序崩溃、违反断言等），将终止符号执行的当前实例，利用约束求解器对当前符号路径约束<strong>PC</strong>得到一个可满足的值，该值就构成了测试用例输入。  即：如果程序执行这些可满足的实际值，就会采用与符号执行完全相同的路径，并以相同的方式结束。</li>
+<li>当符号执行遇到循环和递归时，符号执行可能会导致无限多条路径，如下图：</li>
+</ul>
+<p><img src="/2022/02/10/Symbolic%20Execution%20for%20Software%20Testing%20Three%20Deca/Untitled%201.png"></p>
+<p>这段代码就有无数条执行路径，每条路径的可能性有两种：①任意数量的True加上一个False结尾；②无穷多数量的True。</p>
+<p>对于这种情况：</p>
+<p>符号路径约束$PC =(\wedge_ {i\in [1,n]}N_{i} &gt;0) \wedge (N_{n+1}\leq 10)$  其中每个$N_{i}$都是一个新的符号值</p>
+<p>执行结尾符号状态 ****$\sigma ={N \rightarrow N_{n+1} , sum \rightarrow \sum Ni}$</p>
+<p>在实践中，需要对搜索进行限制（时间超时、路径数、循环迭代次数、搜索深度等）</p>
+<h3 id="静态符号执行的缺点"><a href="#静态符号执行的缺点" class="headerlink" title="静态符号执行的缺点"></a>静态符号执行的缺点</h3><ul>
+<li>关键缺点：当符号执行得到的约束不能被约束求解器求解时，就无法生产输入</li>
+</ul>
+<p>假如上面的代码例子产生变化：</p>
+<p>① twice函数发生了改变：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span> <span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> (v∗v) % <span class="number">50</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>则符号执行到twice函数时，会产生两个路径约束：</p>
+<p>$x_0 \neq (y_0y_0)mod50$</p>
+<p>$x_0 = (y_0y_0)mod50$</p>
+<p>② 假设twice函数不可用（例如没有函数源码），则会产生两个路径约束：</p>
+<p>$x_0 \neq twice(y_0)$</p>
+<p>$x_0=twice(y_0)$</p>
+<p>其中，$twice$是一个未解释的函数</p>
+<p>在这两种情况下，约束求解器无法解决任何这些约束，符号执行将无法为修改后的程序生成任何输入。</p>
+<p>为了缓解这个问题，研究者提出了混合符号执行 concolic execution（实际执行+符号执行）的方法，这是一种动态的符号执行，可以为修改后的程序生产一些输入。</p>
+<h2 id="混合符号执行（Concolic-Execution）"><a href="#混合符号执行（Concolic-Execution）" class="headerlink" title="混合符号执行（Concolic Execution）"></a>混合符号执行（Concolic Execution）</h2><hr>
+<p>混合符号执行Concolic Execution（实际执行+符号执行），是一种动态符号执行。在执行符号执行的同时，程序也在一些具体的输入值上执行。</p>
+<p>Concolic Execution维护一个具体状态和一个符号状态。</p>
+<ul>
+<li>具体状态将所有变量映射到它们的具体值</li>
+<li>符号状态仅映射具有非具体值的变量</li>
+</ul>
+<p>与经典的符号执行不同，混合符号执行在过程中需要获取程序的具体状态，因此它需要初始的具体值作为输入。</p>
+<h3 id="执行过程"><a href="#执行过程" class="headerlink" title="执行过程"></a>执行过程</h3><p>Concolic Executio的初试输入可以给定或随机生成，在执行过程中收集条件语句中对输入的符号约束，然后使用约束求解器推断先前输入的变体（取反等），以便将程序的下一次执行引导到另一条执行路径。</p>
+<p>系统地或启发式地重复该过程，直到探索完所有执行路径，满足用户定义的覆盖标准，或时间预算到期。</p>
+<h3 id="例子-1"><a href="#例子-1" class="headerlink" title="例子"></a>例子</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">twice</span><span class="params">(<span class="keyword">int</span> v)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span> * v;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testme</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">    z = twice(y);</span><br><span class="line">    <span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">            ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    x = sym_input();</span><br><span class="line">    y = sym_input();</span><br><span class="line">    testme(x, y);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还是以上面的程序为例：</p>
+<ol>
+<li>首先，Concolic Execution先产生一些随机输入，例如{x = 22, y = 7}</li>
+<li>之后，同时具体地和符号化地执行程序。 当实际执行到第7行的else分支时，符号执行会在该执行路径生成路径约束$x_0 \neq 2y_0$</li>
+<li>之后，Concolic Execution会将路径约束的连接词取反，得到$x_0= 2y_0$，并求解，可得到一种测试用例输入：{x = 2, y = 1}</li>
+<li>通过这个新的测试用例输入，Concolic Execution会得到并进入新的路径，并同时开启新的实际执行与符号执行。 在本例中，就会进入到第7行的then分支和第8行的else分支，此时就会产生新的路径约束：$(x_0=2y_0) \Lambda (x_0 \leq y_0+10)$，对于此约束进行约束求解，生成新的测试输入，可以让程序继续执行之前没有执行过的路径；而再对该约束取反，得到：$(x_0=2y_0) \Lambda (x_0 &gt; y_0+10)$，就可以探索到新的路径，例如：{x = 30, y = 15}，使用这个测试输入，程序会触发第9行的ERROR。</li>
+<li>通过这三次执行程序，Concolic Execution已经覆盖了程序的所有路径，并停止生产测试用例输入</li>
+</ol>
+<p>注意，这里使用“深度优先”的搜索策略来探索所有的执行路径；我们也可以使用其他策略来探索不同顺序的路径。</p>
+<h2 id="执行生成测试-EGT"><a href="#执行生成测试-EGT" class="headerlink" title="执行生成测试(EGT)"></a>执行生成测试(EGT)</h2><hr>
+<p>本文作者通过<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/abs/10.1145/1455518.1455522">EXE</a>和<a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/osdi08/tech/full_papers/cadar/cadar.pdf">Klee</a> 这两篇工作，实现和扩展了<a target="_blank" rel="noopener" href="https://link.springer.com/chapter/10.1007/11537328_2">EGT方法</a> （Execution-Generated Testing）</p>
+<p>EGT方法区分了程序的具体状态和符号状态，通过在每次操作之前动态检查所涉及的值是否是实际的，将具体执行和符号执行混合在一起。</p>
+<p>如果是实际值，那么就按照程序本身执行；相反，如果至少有一个值是符号化的，则通过更新当前路径的路径条件以符号方式执行。</p>
+<h3 id="例子-2"><a href="#例子-2" class="headerlink" title="例子"></a>例子</h3><p>还是以上面的程序为例，在第17行处，如果把<code>y**=**sym input()</code> 改为 <code>y = 10</code>，那么第6行<code>z **=**twice (y);</code> 函数将使用具体值 “20”来调用函数twice(20)，完成实际执行。</p>
+<p>之后，第7行<code>if (z == x)</code>将变为<code>if (20 == x)</code>    </p>
+<p>约束$x=20$，程序走then分支</p>
+<p>约束$x \neq 20$，程序走else分支</p>
+<p>注意，在then分支，程序走到第8行为<code>if (x &gt; 20)</code>， 由于x = 20，则无法往下继续走。</p>
+<p>总之，混合符号执行Concolic Execution与执行生成测试EGT，主要的贡献都是结合了实际执行与符号执行，缓解了传统符号执行的缺点。它们都是动态符号执行的范畴。</p>
+<h2 id="动态符号执行的缺点"><a href="#动态符号执行的缺点" class="headerlink" title="动态符号执行的缺点"></a>动态符号执行的缺点</h2><hr>
+<p>动态符号执行的优点是：可以使用具体值，来降低与外部代码交互或约束求解超时所导致的不精确性，这缓解了传统符号执行遇到的问题。但是这个过程遇到的问题是，会丢失一些执行路径，从而牺牲了完整性。</p>
+<ul>
+<li>先回顾一下Concolic Execution是怎样解决静态符号执行的缺点的：  例如，在上面的代码例子中，将twice函数进行改变：返回值改为<code>(v*v)%50</code>  ，而且程序执行的初试随机值为{x = 22, y = 7}，则针对该随机输入，生成的路径约束为 $x_{0}\ne (y_{0} y_{0}) mod 50$  假设约束求解器不能解决非线性约束，则Concolic Execution将无法为替代执行路径生成输入。当函数twice的源代码不可用时（是某个第三方库函数或系统调用），会出现类似情况，此时，路径约束为$x_0 \neq twice(y_0)$ ，其中$twice$是一个未解释的函数。  以上是前文静态符号执行的缺点，混合符号执行Concolic Execution会通过使用实际值替换符号值的方式解决这个问题。例如，将$y0$使用实际值 “7” 替换。那么上面的路径约束就简化为：$x_0 \neq 49$ ，求解该约束，可以得到一个探索新路径的输入：{x = 49, y = 7}。以此解决了传统符号执行（静态符号执行）的缺点。</li>
+</ul>
+<p>但是，这个例子中，无法生成路径true, false的输入，即在代码：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testme</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">    z = twice(y);</span><br><span class="line">    <span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">            ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>中，符合if (z == x)，但又不符合if (x &gt; y + 10)，进不去ERROR</p>
+<p>即：无法生成对于约束$x_{0}= (y_{0} y_{0}) mod 50\wedge (x_{0}\leq y_{0}+10)$的测试输入，因为$y_0$的值已经被实际化为“7”了。因此会造成路径的丢失，失去了路径完整性。</p>
+<p>但是相比与传统符号执行遇到不受支持的操作或外部调用问题时直接终止执行，混合符号执行Concolic Execution的方法还是更可取。</p>
+<h2 id="符号执行的挑战"><a href="#符号执行的挑战" class="headerlink" title="符号执行的挑战"></a>符号执行的挑战</h2><hr>
+<h3 id="一、路径爆炸"><a href="#一、路径爆炸" class="headerlink" title="一、路径爆炸"></a>一、路径爆炸</h3><p>符号执行的关键挑战之一就是路径爆炸问题。除了较小的程序外，所有程序中都有大量的程序路径，这通常是代码中静态分支数量的指数级。限制符号执行时间及循环迭代次数都可以缓解这一问题，主要的方法包括：</p>
+<ul>
+<li>启发式技术-优先探索最有希望的路径  启发式技术是用于确定路径探索优先顺序的关键机制。<ul>
+<li>使用CFG来探索，尽量选择与未覆盖指令最接近的路径</li>
+<li>基于随机探索，将符号探索与随机测试相结合</li>
+</ul>
+</li>
+<li>使用合理的程序分析技术降低路径探索的复杂性<ul>
+<li>使用 selelct 表达式进行静态融合，然后将其直接传递给约束求解器</li>
+<li>通过缓存和重用底层函数的计算结果，减小分析的复杂性</li>
+</ul>
+</li>
+</ul>
+<p>以上这些方法都是当时其他文献的工作，这里没有深入研究。</p>
+<h3 id="二、约束求解"><a href="#二、约束求解" class="headerlink" title="二、约束求解"></a>二、约束求解</h3><p>两种优化方法：</p>
+<ul>
+<li>不相关的约束消除：通常一个程序分支只依赖于一小部分的程序变量，因此一种有效的优化是从当前路径条件中移除与识别当前分支不相关的约束</li>
+<li>增量求解：在符号执行期间生成的约束集的一个重要特征是，它们以来自程序源代码的一组固定的静态分支来表示。所以，多个路径可能会产生相似的约束集，所以可以使用相似的解决方案。通过重用以前相似请求得到的结果，可以提升约束求解的速度（CUTE、KLEE使用）</li>
+</ul>
+<h3 id="三、内存建模"><a href="#三、内存建模" class="headerlink" title="三、内存建模"></a>三、内存建模</h3><p>程序语句转换为符号约束的精确性对符号执行的覆盖率有很大的影响。内存建模可以引申为其他方面的挑战，主要是符号执行如何模拟具体的系统环境。</p>
+<p>精确度和可伸缩性之间的权衡应该根据要分析的代码(例如，低级系统代码与高级应用程序代码)以及不同约束求解理论之间的确切性能差异来确定。而在动态符号执行中，可以通过自定义符号公式中具体值的使用来调整可伸缩性和精度。</p>
+<h2 id="四、处理并发性"><a href="#四、处理并发性" class="headerlink" title="四、处理并发性"></a>四、处理并发性</h2><p>动态符号执行已经被有效地用于测试并发程序，包括具有复杂数据输入的应用程序、分布式系统等。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/02/10/Symbolic Execution for Software Testing Three Deca/">http://example.com/2022/02/10/Symbolic Execution for Software Testing Three Deca/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%EF%BC%8C%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">符号执行，论文阅读</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/03/26/Panda%E5%AE%89%E8%A3%85%E5%8F%8A%E5%9F%BA%E7%A1%80/"><i class="fa fa-chevron-left">  </i><span>Panda安装及基础操作（未完，持续记录）</span></a></div><div class="next-post pull-right"><a href="/2022/01/10/Exercise%202/"><span>Fuzzing101 Exercise 2 - libexif - CVE-2009-3895&amp;CVE-2012-2836</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
