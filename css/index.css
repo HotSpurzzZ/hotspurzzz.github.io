@@ -1449,11 +1449,7 @@ a#site-name {
   text-decoration: none;
 }
 a.fancybox {
-  outline: none;
-  display: inline-block;
-  width: 100%;
-  text-align: center;
-  text-decoration: none;
+
 }
 a.fancybox:focus {
   outline: none;
