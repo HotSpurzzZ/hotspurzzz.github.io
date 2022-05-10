@@ -36,8 +36,9 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**符号状态 σ = 空集</span><br><span class="line">符号路径约束 PC = True**</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>当符号执行遇到一个输入语句时，形式为<code>var = sym_input()</code>，符号执行将为符号状态<strong>σ</strong>添加映射：$var \rightarrow s$  其中$s$ 是一个新的未约束的符号值。</li>
+<li>当符号执行遇到一个输入语句时，形式为<code>var = sym_input()</code>，符号执行将为符号状态<strong>σ</strong>添加映射：<img src="http://latex.codecogs.com/svg.latex?$var \\rightarrow s$"></li>
 </ul>
+<p> 其中$s$ 是一个新的未约束的符号值。</p>
 <p>例如，对于上面的例子，在执行第16、17行：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line"> x = sym_input();</span><br><span class="line"> y = sym_input();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
