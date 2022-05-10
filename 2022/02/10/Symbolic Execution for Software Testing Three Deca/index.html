@@ -53,7 +53,7 @@
 <ul>
 <li>当符号执行遇到一个条件语句<code>if(e)  S1  else  S2</code>，PC会有两种更新：<ol>
 <li>首先更新PC（表示then分支）为：<img src="http://latex.codecogs.com/svg.latex?PC = PC  \Lambda  \sigma(e)"></li>
-<li>之后建立一个路径约束(else语句)PC‘：<img src="http://latex.codecogs.com/svg.latex?PC^{’} = PC \Lambda \lnot\sigma(e)"></li>
+<li>之后建立一个路径约束(else语句)PC‘：<img src="http://latex.codecogs.com/svg.latex?PC^{'} = PC \Lambda \lnot\sigma(e)"></li>
 </ol>
 <ul>
 <li>如果PC可以满足对符号值的某些分配，给一些实际值，那么符号执行继续沿着then这条分支执行下去，且符号状态为σ和符号路径约束为PC；</li>
@@ -66,7 +66,7 @@
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">z = twice(y);</span><br><span class="line"><span class="keyword">if</span> (z == x) &#123;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; y + <span class="number">10</span>)</span><br><span class="line">        ERROR;</span><br></pre></td></tr></table></figure>
 
 <p>在第7行，会创建两个路径约束实例，路径约束分别为：</p>
-<p><img src="http://latex.codecogs.com/svg.latex?x_0 = 2y_0">      和   <img src="http://latex.codecogs.com/svg.latex?x_0 \neq 2y_0"></p>
+<p><img src="http://latex.codecogs.com/svg.latex?x_0 = 2y_0">      和   <img src="http://latex.codecogs.com/svg.latex?x_0\neq2y_0"></p>
 <p>在第7行，会创建两个路径约束实例，路径约束分别为：</p>
 <p><img src="http://latex.codecogs.com/svg.latex?(x_0 = 2y_0)\Lambda(x_0>y_0+10)">      和    <img src="http://latex.codecogs.com/svg.latex?(x_0 = 2y_0)\Lambda(x_0 \leq y_0+10)"></p>
 <ul>
@@ -114,7 +114,7 @@
 <p>还是以上面的程序为例：</p>
 <ol>
 <li>首先，Concolic Execution先产生一些随机输入，例如{x = 22, y = 7}</li>
-<li>之后，同时具体地和符号化地执行程序。 当实际执行到第7行的else分支时，符号执行会在该执行路径生成路径约<img src="http://latex.codecogs.com/svg.latex?x_0 \neq 2y_0"></li>
+<li>之后，同时具体地和符号化地执行程序。 当实际执行到第7行的else分支时，符号执行会在该执行路径生成路径约<img src="http://latex.codecogs.com/svg.latex?x_0\neq2y_0"></li>
 <li>之后，Concolic Execution会将路径约束的连接词取反，得到<img src="http://latex.codecogs.com/svg.latex?x_0= 2y_0">，并求解，可得到一种测试用例输入：{x = 2, y = 1}</li>
 <li>通过这个新的测试用例输入，Concolic Execution会得到并进入新的路径，并同时开启新的实际执行与符号执行。 在本例中，就会进入到第7行的then分支和第8行的else分支，此时就会产生新的路径约束：<img src="http://latex.codecogs.com/svg.latex?(x_0=2y_0) \Lambda (x_0 \leq y_0+10)">，对于此约束进行约束求解，生成新的测试输入，可以让程序继续执行之前没有执行过的路径；而再对该约束取反，得到：<img src="http://latex.codecogs.com/svg.latex?(x_0=2y_0) \Lambda (x_0 > y_0+10)">，就可以探索到新的路径，例如：{x = 30, y = 15}，使用这个测试输入，程序会触发第9行的ERROR。</li>
 <li>通过这三次执行程序，Concolic Execution已经覆盖了程序的所有路径，并停止生产测试用例输入</li>
