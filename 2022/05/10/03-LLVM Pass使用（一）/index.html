@@ -18,7 +18,7 @@
 <li>分析类：通过pass提供信息</li>
 <li>转换类：修改中间代码</li>
 </ul>
-<p>注：该教程涉及的是传统Pass管理器（旧版），LLVM默认使用新的Pass管理器进行优化（只有codegen 管道还在使用旧版Pass），接下来会对新版Pass进行学习</p>
+<p>注：该教程涉及的是传统Pass管理器（旧版），LLVM默认使用新的Pass管理器进行优化（只有codegen 管道还在使用旧版Pass）。后面的时间也会对新版Pass进行学习</p>
 <hr>
 <h2 id="配置Pass构建环境"><a href="#配置Pass构建环境" class="headerlink" title="配置Pass构建环境"></a>配置Pass构建环境</h2><p>在LLVM源代码库某处创建新目录，例如源码中提供了：<code>llvm/lib/Transforms/Hello</code></p>
 <p>设置构建脚本，将以下内容复制到<code>llvm/lib/Transforms/Hello/CMakeLists.txt</code>：</p>
