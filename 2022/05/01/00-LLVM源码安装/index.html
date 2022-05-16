@@ -15,12 +15,13 @@
 </ul>
 <p>LLVM安装方法有许多，其实主要区别就在于，源码安装可以后续对LLVM进行进一步加工；若只是单纯使用LLVM，则可以直接安装。</p>
 <span id="more"></span>
-<h2 id="直接安装"><a href="#直接安装" class="headerlink" title="直接安装"></a>直接安装</h2><hr>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://apt.llvm.org/llvm.sh</span><br><span class="line">chmod +x llvm.sh</span><br><span class="line">sudo ./llvm.sh </span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="直接安装"><a href="#直接安装" class="headerlink" title="直接安装"></a>直接安装</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://apt.llvm.org/llvm.sh</span><br><span class="line">chmod +x llvm.sh</span><br><span class="line">sudo ./llvm.sh </span><br></pre></td></tr></table></figure>
 
 <p><a target="_blank" rel="noopener" href="http://llvm.sh/">llvm.sh</a> 内包含安装llvm所需要的其他配件工具，主要通过apt-get安装的</p>
-<h2 id="源码编译安装（推荐）"><a href="#源码编译安装（推荐）" class="headerlink" title="源码编译安装（推荐）"></a>源码编译安装（推荐）</h2><hr>
-<p>这里使用的LLVM 版本是<a target="_blank" rel="noopener" href="https://github.com/llvm/llvm-project">Github</a>上显示的14.0.3</p>
+<hr>
+<h2 id="源码编译安装（推荐）"><a href="#源码编译安装（推荐）" class="headerlink" title="源码编译安装（推荐）"></a>源码编译安装（推荐）</h2><p>这里使用的LLVM 版本是<a target="_blank" rel="noopener" href="https://github.com/llvm/llvm-project">Github</a>上显示的14.0.3</p>
 <h3 id="环境条件"><a href="#环境条件" class="headerlink" title="环境条件"></a>环境条件</h3><ul>
 <li>CMake &gt;= 3.13.4</li>
 <li>GCC &gt;= 7.1.0</li>
