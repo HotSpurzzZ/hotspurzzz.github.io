@@ -30,6 +30,14 @@
 <p>LLVM IR（Intermediate Representation）是LLVM的代码表示，是用于在编译器中表示代码的形式。旨在轻量级和低级，同时具有表现力、类型和可扩展性。旨在成为某种“通用 IR”，通过处于足够低的级别，可以将高级想法清晰地映射到它。</p>
 <p>LLVM IR有三种形式：①内存中的编译中间表示 ②磁盘上的二进制码 bitcode ③可读汇编文本</p>
 <p>这三种形式之间是等价的。</p>
+<p>结构：</p>
+<p><img src="/2022/05/05/01-LLVM%E6%A6%82%E8%BF%B0%E5%8F%8AIR%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/Untitled%202.png"></p>
+<ul>
+<li>Module，可以被视为一个.c文件的 IR 表示，每个 Module都是相对独立的东西，主要包含了声明或者定义的函数、声明或定义的全局变量、当前 Module的基本信息</li>
+<li>Function，是 Module中以List的方式存放的。函数内的第一个基本块叫做入口基本块。无法单独存在，必须是在某个 Module里，包含了大量 BasicBlock 、参数和返回值类型、可变参数列表、函数的attribute和其他函数的基本信息</li>
+<li>BasicBlock，是 Function 中以List方式存放。包含了大量的 Instruction ，前驱、后继的 BasicBlock，以及一些基本信息，每个 BasicBlock都可以视为一段顺序执行的代码</li>
+<li>Instruction，是 BasicBlock 中以List方式存放的，LLVM IR中的最小可执行单位，每一条指令都单占一行</li>
+</ul>
 <h2 id="LLVM简单使用"><a href="#LLVM简单使用" class="headerlink" title="LLVM简单使用"></a>LLVM简单使用</h2><hr>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;hello LLVM\n&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
