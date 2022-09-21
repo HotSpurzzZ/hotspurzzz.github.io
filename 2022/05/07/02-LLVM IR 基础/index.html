@@ -21,7 +21,7 @@
 <p>②磁盘上的二进制码 bitcode（例如.bc文件） </p>
 <p>③可读汇编文本（例如.ll文件）</p>
 <p>这三种形式之间是等价的。</p>
-<h3 id="IR结构："><a href="#IR结构：" class="headerlink" title="IR结构："></a>IR结构：</h3><p><img src="/2022/05/07/02-LLVM%20IR%20%E5%9F%BA%E7%A1%80/Untitled.png" alt="Untitled"></p>
+<h3 id="IR结构："><a href="#IR结构：" class="headerlink" title="IR结构："></a>IR结构：</h3><p><img src="/2022/05/07/02-LLVM%20IR%20%E5%9F%BA%E7%A1%80/Untitled.png" alt="IR结构"></p>
 <ul>
 <li>Module，可以被视为一个.c文件的 IR 表示，每个 Module都是相对独立的东西，主要包含了声明或者定义的函数、声明或定义的全局变量、当前 Module的基本信息</li>
 <li>Function，是 Module中以List的方式存放的。函数内的第一个基本块叫做入口基本块。无法单独存在，必须是在某个 Module里，包含了大量 BasicBlock 、参数和返回值类型、可变参数列表、函数的attribute和其他函数的基本信息</li>
