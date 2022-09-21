@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/06/27/POMP%20Postmortem%20Program%20Analysis%20with%20Hardware-Enh/</loc>
+    
+    <lastmod>2022-09-21</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://example.com/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/</loc>
     
     <lastmod>2022-09-21</lastmod>
@@ -250,6 +257,13 @@
   
   <url>
     <loc>http://example.com/tags/Taint-Analysis/</loc>
+    <lastmod>2022-09-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/tags/Backward-Taint-Analysis/</loc>
     <lastmod>2022-09-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
