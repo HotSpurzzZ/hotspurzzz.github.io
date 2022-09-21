@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/03/26/Panda%E5%AE%89%E8%A3%85%E5%8F%8A%E5%9F%BA%E7%A1%80/</loc>
+    
+    <lastmod>2022-09-21</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://example.com/2022/05/07/02-LLVM%20IR%20%E5%9F%BA%E7%A1%80/</loc>
     
     <lastmod>2022-09-21</lastmod>
@@ -38,13 +45,6 @@
   
   <url>
     <loc>http://example.com/2022/04/04/Pande%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/</loc>
-    
-    <lastmod>2022-04-05</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://example.com/2022/03/26/Panda%E5%AE%89%E8%A3%85%E5%8F%8A%E5%9F%BA%E7%A1%80/</loc>
     
     <lastmod>2022-04-05</lastmod>
     
@@ -220,6 +220,13 @@
     <priority>0.6</priority>
   </url>
   
+  <url>
+    <loc>http://example.com/tags/Dynamic-Analysis/</loc>
+    <lastmod>2022-09-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
   
   <url>
@@ -259,6 +266,13 @@
   
   <url>
     <loc>http://example.com/categories/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/</loc>
+    <lastmod>2022-09-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/categories/Dynamic-Analysis/</loc>
     <lastmod>2022-09-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
