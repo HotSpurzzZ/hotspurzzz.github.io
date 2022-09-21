@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="根因分析：一种采用Fuzz + 动态执行 + 数理统计的方法"><meta name="keywords" content="Fuzz,Dynamic Analysis,Root Cause Analysis,Paper Reading"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>论文阅读 -- &quot;AURORA - Statistical Crash Analysis for Automated Root Cause Explanation&quot; | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">2.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AURORA%E6%A1%86%E6%9E%B6"><span class="toc-number">4.</span> <span class="toc-text">AURORA框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%96%B9%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">具体方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">5.1.</span> <span class="toc-text">举例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B9%E5%9B%A0%E5%88%86%E6%9E%90%E9%80%9A%E5%B8%B8%E9%87%87%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">5.2.</span> <span class="toc-text">根因分析通常采用的方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#AURORA%E8%AE%BE%E8%AE%A1"><span class="toc-number">6.</span> <span class="toc-text">AURORA设计</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4"><span class="toc-number">6.1.</span> <span class="toc-text">步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Predicates"><span class="toc-number">6.2.</span> <span class="toc-text">Predicates</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Predicates-Type"><span class="toc-number">6.3.</span> <span class="toc-text">Predicates Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Predicates-Evaluation"><span class="toc-number">6.4.</span> <span class="toc-text">Predicates  Evaluation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ranking"><span class="toc-number">6.5.</span> <span class="toc-text">Ranking</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E4%B8%8E%E5%AE%9E%E9%AA%8C"><span class="toc-number">7.</span> <span class="toc-text">开发与实验</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-number">7.1.</span> <span class="toc-text">实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">7.2.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">15</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">16</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">论文阅读 -- &quot;AURORA - Statistical Crash Analysis for Automated Root Cause Explanation&quot;</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-07-10</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Root-Cause-Analysis/">Root Cause Analysis</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id><a href="#" class="headerlink" title></a></h1><p>Author: Tim Blazytko, Moritz Schlögel, Cornelius Aschermann, Ali Abbasi, Joel Frank, Simon Wörner, and Thorsten Holz, Ruhr-Universität Bochum<br>Code: <a target="_blank" rel="noopener" href="https://github.com/RUB-SysSec/aurora">https://github.com/RUB-SysSec/aurora</a><br>Topic: Root Cause<br>URL: <a target="_blank" rel="noopener" href="https://www.usenix.org/conference/usenixsecurity20/presentation/blazytko">https://www.usenix.org/conference/usenixsecurity20/presentation/blazytko</a><br>Where: 29th USENIX Security Symposium<br>Year: 2020<br>what: 根因分析：一种采用Fuzz+动态执行+数理统计的方法</p>
+<span id="more"></span>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><hr>
+<ul>
+<li>已有的解决方案及不足：各种依赖于反向执行和反向污点分析等技术的方法（如POMP 2017）。不足：这些技术可能只限于某些crash类型，或者只为分析人员提供汇编指令，但没有提供有关故障的更多说明</li>
+<li>解决的问题：不仅能识别二进制程序崩溃的根本原因，还可以为分析人员提供了该位置产生崩溃的解释；相对于以往的工作，能够识别对于不存在数据依赖关系的错误（如类型混淆错误）</li>
+<li>本文提出的创新方案概述：<ul>
+<li>从导致崩溃的输出开始，生产一组不同的相似输入（部分会导致崩溃、另一部分正常运行）</li>
+<li>执行输入时，跟踪程序状态，生成<code>predicates</code> （例如：产生崩溃与不产生崩溃输入之间的行为差异的简单布尔表达式）</li>
+<li>通过<code>predicates</code> ，揭示根本原因的位置，并提供了该位置产生崩溃的解释</li>
+</ul>
+</li>
+<li>实验效果  在25个软件漏洞上评估，表明：再复杂的bug，AURORA也能发现根本原因（修复与崩溃之间有数百万条指令），并且能够处理root cause和crash之间不存在数据依赖的错误，例如类型混淆错误。</li>
+</ul>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><hr>
+<p>找到新的崩溃输入已较为容易和自动化，而对崩溃分类、处理还需要人工完成</p>
+<ol>
+<li>修复时间成本大：FUZZ—无数崩溃—负责修复—不堪重负</li>
+<li>crash分类不准确：通常采用某一种度量进行分类（覆盖率或者调用栈的hash），一般每一类有一个crash就够了。但该分类方法容易不准确，且可能产生太多的类</li>
+<li>如何定位崩溃原因？（通常崩溃的根本原因比崩溃位置更早）（当前方法：ASAN+手动回溯分析）</li>
+</ol>
+<h1 id="AURORA框架"><a href="#AURORA框架" class="headerlink" title="AURORA框架"></a>AURORA框架</h1><hr>
+<ol>
+<li>选择一个crash input文件，并产生一组相似的输入（一些会导致崩溃，另一些不会）</li>
+<li>对于每个新的输入，执行、跟踪程序内部状态（每条指令的控制流信息、寄存器值），以此创建一组<code>predicates</code> （布尔表达式）</li>
+<li>根据predicates，<strong>计算</strong>此输入是否会导致崩溃（怎么计算？） predicates ：会获取感兴趣的行为，如：是否执行了某一特定分支、寄存器是否包含可疑的小数</li>
+</ol>
+<h1 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h1><hr>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>作者举例 Ruby code  mruby解释器   类型混淆错误（type confusion bug）：</p>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled.png"></p>
+<ul>
+<li>异常类型<code>NotImplementedError</code>被修改为字符串类型的别名。因此，将来创建的每个<code>NotImplementedError</code>实例都将是一个字符串，而不是预期的异常。</li>
+<li>调用Module.constants函数，但函数不存在，触发<code>NotImplementedError</code>，实际上生成一个字符串对象</li>
+<li>传递给mruby的自定义异常处理函数，函数假定对象具有异常属性，因此不检查，并添加”Module.constants not implemented”至该字符串对象上</li>
+<li>最终在取消指针引用的时候，将长度字段解释为地址，非法内存访问，程序崩溃</li>
+</ul>
+<p>修复：在异常处理函数中添加类型检查</p>
+<h2 id="根因分析通常采用的方法"><a href="#根因分析通常采用的方法" class="headerlink" title="根因分析通常采用的方法"></a>根因分析通常采用的方法</h2><ul>
+<li>人工调试：时间成本长，复杂</li>
+<li>sanitizer：ASAN、MSAN等，但不能识别上述类型混淆错误</li>
+<li>反向污点分析：近期对这一方向的研究比较多，如：<strong><strong>REPT（2018 usenix）、RETracer（2016 IEEE）、POMP（2017 usenix）</strong></strong>，<strong>DEEPVSA（2019 usenix）</strong>但同样对于上述类型混淆错误不起作用（崩溃点与根本原因地址之间没有直接的数据流）</li>
+<li>crash勘察：AFL crash exploration mode 将崩溃的输入作为种子，变异生成新的输入，保留仍导致崩溃的输入。这些输入会有新的路径覆盖。</li>
+</ul>
+<p>fuzz过程的一个问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">对于作者给出的例子，为了对crash的根本原因有新的见解，需要崩溃探索模式来触发与类型混淆相关的新行为，即：Fuzzer需要向NotImplementedError分配除了String的另一种类型，而AFL的突变模式大概率会变成如“Stringgg”或“STRR”之类的内容。</span><br><span class="line">因此，使用基于语法的模糊器，如NAUTILUS: Fishing for Deep Bugs with Grammars。这些模糊器可以识别出String是Rudy的语法元素，并替换为其他元素，如Fuzzer选择“Hash”时，崩溃点与“String”不同，这有利于分析，因为比较两个输入表明崩溃可能与NotImplementedError的类型有关。</span><br></pre></td></tr></table></figure>
+
+<h1 id="AURORA设计"><a href="#AURORA设计" class="headerlink" title="AURORA设计"></a><strong><strong>AURORA</strong></strong>设计</h1><p>核心思想：<strong>定位崩溃和非崩溃输入之间的行为差异</strong>。首先创建与崩溃相关的程序行为数据集，然后监控相关的输入行为，最后对它们进行比较分析。这是基于这样一种观点，即崩溃的输入在某种程度上必须从语义上偏离非崩溃的输入。直观地说，程序执行过程中导致偏差的第一个相关行为是根本原因。</p>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol>
+<li>首先创建两组输入：导致崩溃的输入、不导致崩溃的输入（理想情况：导致崩溃的输入都是同一个根本原因） 方法：将崩溃输入作为种子进行崩溃探索fuzzing（AFL crash exploration mode）<a target="_blank" rel="noopener" href="https://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html">https://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html</a></li>
+<li>跟踪每一个输入的执行，将差异与结果联系起来，使用<code>predicates</code> 来形式化这一过程，具体跟踪的数据如下：<ol>
+<li>对于<strong>执行的每条指令</strong>，我们记录所有修改的寄存器(包括通用寄存器和标志寄存器)的最小值和最大值（原因：限制循环导致的数据量。为什么合理？作者认为，导致崩溃的值通常以最小值或最大值的形式出现）</li>
+<li>记录了每次内存写入的最大和最小存储值</li>
+<li>没有收集有关目标地址的信息，由于：“we did not observe any benefit in tracing the memory addresses used”</li>
+<li>保存粗略的控制流图</li>
+<li>收集栈和堆的地址范围来测试某些指针是否使有效的堆栈指针</li>
+<li>不跟踪共享库（减小开支）</li>
+<li>消除对那些-从经验上来说-对在一个给定的二进制程序中发现错误不感兴趣的代码的追踪</li>
+</ol>
+</li>
+<li>结果：向分析人员提供崩溃相关解释和地址的列表，按它们（predicates ）的预测质量和执行时间排序</li>
+</ol>
+<h2 id="Predicates"><a href="#Predicates" class="headerlink" title="Predicates"></a>Predicates</h2><ul>
+<li>目的：以predicates（谓词）的形式区分崩溃与非崩溃运行之间的差异行为</li>
+<li><strong>组成（一个三元组）</strong><ul>
+<li>语义描述（如布尔表达式）e. g., “the maximum value of rax at this position is less than 2”           O(n ∗ log(n))              around 1,000 per instruction</li>
+<li>被求值的指令地址</li>
+<li>表示区分崩溃和非崩溃的能力的分数</li>
+</ul>
+</li>
+</ul>
+<p>换句话说，当谓词的计算结果为真时，分数表示认为会导致崩溃的概率。</p>
+<p>得分较高的谓词标识了在根本原因和崩溃位置之间的路径上的某个代码位置。</p>
+<p>最后，先按分数对这些谓词进行排序，然后按它们的执行顺序进行排序。给出这个排序后的谓词列表，人工分析人员就可以手动分析该错误。</p>
+<ul>
+<li>具体形成predicates的步骤：<ul>
+<li>通过跟踪输入的行为获得结果：<ul>
+<li>收集所有输入的控制流程图转换</li>
+<li>之后，计算指令集（由地址标识），这些指令与基于谓词的分析相关</li>
+<li>为每条指令生成许多谓词，保存分数最高的谓词</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Predicates-Type"><a href="#Predicates-Type" class="headerlink" title="Predicates Type"></a>Predicates Type</h2><ul>
+<li><strong>Control-flow Predicates</strong><ul>
+<li>has_edge_to：给定一条从 x 至 y 的控制流边，至少有一条从 x 到 y 的转换</li>
+<li>always_taken_to：从 x 出发的每个传出边都已被带到 y</li>
+</ul>
+  最后，统计successor的数量（什么意思？需要看代码理解）</li>
+<li><strong>Register and Memory Predicates</strong>  对于每条指令，根据：写入寄存器或内存的所有值中的最小值和最大值，生成表达式，来生成谓词  表达式示例：<code>r = max(Rax) &lt; c</code> （如何构造？下面介绍）<ul>
+<li>is_heap_ptr(R)</li>
+<li>is_stack_ptr(R)</li>
+</ul>
+</li>
+<li><strong>Flag Predicates</strong>  检查carry, zero and overflow flag</li>
+</ul>
+<h2 id="Predicates-Evaluation"><a href="#Predicates-Evaluation" class="headerlink" title="Predicates  Evaluation"></a>Predicates  Evaluation</h2><p>每条指令，生成并测试所有类型的谓词，并存储得分最高的谓词。</p>
+<p>谓词的质量：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">谓词的质量，即，它对目标应用程序实际行为的预测程度</span><br><span class="line">如果在给定的输入上崩溃，则谓词的计算结果应为True；反之，为False；</span><br><span class="line">若能预测所有测试用例的结果（崩溃 or 非崩溃），则是完美的，但基本不可能。因此，作者为谓词引入了概率</span><br></pre></td></tr></table></figure>
+
+<p>谓词三元组</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">- 语义描述（如布尔表达式：r = max(rax) &lt; 2）</span><br><span class="line">- 被求值的指令地址</span><br><span class="line">- 表示区分崩溃和非崩溃的能力的分数</span><br></pre></td></tr></table></figure>
+
+<p>对于每个谓词，有两个核心点：</p>
+<p>①布尔表达式的判定数？②分数怎么计算？</p>
+<p><strong>判定数c的形成：（时间复杂度：O(n ∗ log(n))）</strong></p>
+<p>假如现存在以下四个输入文件，两个crash，两个non-crash；假设其中在某一条指令上，max(rax)的值如下</p>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%201.png"></p>
+<ol>
+<li>对于所有输入文件中，同一条指令中，该寄存器的值进行排序</li>
+<li>首先设判定数等于第一个value，即：<code>c = 0x08</code>，此时，对于布尔表达式 <code>r = max(rax) &lt; c</code>，四个都是false 其中，<code>Cf = 2 , Ct = 0 , Nf = 0 , Nt = 2</code>  ,带入作者的公式： <img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%202.png"> 即： <img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%203.png"> <img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%204.png"> score = 0，表明这个c不是理想的值</li>
+<li>将判定数设为第二个value，重复步骤2，以此类推，发现当判定数c值为0x400254时，score = 1 ，最理想</li>
+</ol>
+<p><strong>分数计算：</strong></p>
+<ol>
+<li>设某一条指令中，一个谓词的语义描述为：<code>r = min(Rax) &lt; c ，c = 0xff</code></li>
+<li>一共有1013个崩溃输入，2412个非崩溃输入 统计得到： Crash input :           False = 1013,  True = 0 Non-crash input :   False = 2000,  True = 412</li>
+<li>使用公式 <img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%205.png"> 此时，谓词的分数为： <img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%206.png"></li>
+</ol>
+<p>可以看到，判定数计算和分数计算的步骤几乎一致，也就是说，计算判定数的同时，就把分数也计算出来了。</p>
+<p>同时作者还提到，绝大多数谓词与root cause无关，因此只保留分数大于0.9的谓词。</p>
+<p>最后还对每个合适的谓词设置条件断点，并记录执行顺序。</p>
+<hr>
+<p>回到前面作者提及的<code>Ruby code  mruby解释器   类型混淆错误</code> 的例子：</p>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%207.png"></p>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%208.png"></p>
+<p>根据前面的步骤，可以分析得出，在触发崩溃的样本中，类型值被赋予了16（string类型），其应当是18，所以根本原因谓词的本身条件是：<code>min(rax) &lt; 17</code></p>
+<h2 id="Ranking"><a href="#Ranking" class="headerlink" title="Ranking"></a>Ranking</h2><ul>
+<li>主要因素：谓词的分数  通过统计分析，每条指令获得一条最佳谓词，其分数表示谓词区分崩溃和非崩溃输入的程度。但大多数谓词是与崩溃无关的，因此作者筛选掉分数小于0.9的谓词，剩下的谓词确定了与错误有关的位置。  作者认为，程序执行前期的谓词更有可能对应于根本原因。</li>
+<li>次要因素：谓词的执行顺序（解决分数并列问题）  为了知道每个谓词的执行顺序，作者为谓词设置了条件断点。执行输入时，计算每个断点在程序中的顺序。由于每个输入执行的路径不同，谓词的执行顺序不同，因此作者对每个谓词的断点进行平均求值。</li>
+</ul>
+<h1 id="开发与实验"><a href="#开发与实验" class="headerlink" title="开发与实验"></a>开发与实验</h1><ul>
+<li>输入数据集：作者对AFL(版本2.52b)进行了修改，将本来要丢弃的非崩溃输入保存到非崩溃输入集。</li>
+<li>跟踪输入执行：作者为英特尔PIN[40]（3.7版）实现了一个pintool，依靠英特尔的通用和特定架构的检测API，提取相关信息。</li>
+<li>合成谓词解释：Rust  写的。合成、评估、排序所有谓词；条件断点使用ptrace syscall；使用addr2line获得谓词的函数名、行数。</li>
+</ul>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><ul>
+<li>环境：Ubuntu 18.04     32核(基于Intel Xeon Silver 4114，2.20 GHz)和224 GiB RAM的云VM   禁用ASLR</li>
+<li>对象：<ul>
+<li>10个堆缓冲区溢出</li>
+<li>1个空指针引用</li>
+<li>3个整数溢出</li>
+<li>1个栈溢出</li>
+<li>2个类型混淆（缺少类型检查）</li>
+<li>3个未初始化变量</li>
+<li>5个UAF</li>
+</ul>
+  他们都有崩溃验证文件及官方修补文件</li>
+</ul>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%209.png" alt="结果分析"></p>
+<ul>
+<li>Top 50 指提取出来的前50个谓词，与根因是否存在直接关联</li>
+<li>SLOC指需要检查的源代码行数量</li>
+</ul>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%2010.png" alt="指令数分析"></p>
+<ul>
+<li>第一、二格：root cause 至崩溃点之间的指令数（最大、平均）</li>
+<li>第三格：程序开始执行至崩溃点之间的指令数（平均）</li>
+</ul>
+<p>最后是时间成本分析</p>
+<p><img src="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/Untitled%2011.png" alt="时间成本分析（单位：小时）"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>解决了root cause 与崩溃点之间无数据流情况下的根因分析问题</li>
+<li>核心思想：定位崩溃与非崩溃之间的<strong>行为差异</strong>（通过数理统计）</li>
+<li>根因分析成功率及时间效率都较高（可以用更多实验来复现）</li>
+</ol>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/07/10/AURORA Statistical Crash Analysis for Automated Ro/">http://example.com/2022/07/10/AURORA Statistical Crash Analysis for Automated Ro/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Fuzz/">Fuzz</a><a class="post-meta__tags" href="/tags/Dynamic-Analysis/">Dynamic Analysis</a><a class="post-meta__tags" href="/tags/Root-Cause-Analysis/">Root Cause Analysis</a><a class="post-meta__tags" href="/tags/Paper-Reading/">Paper Reading</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2022/05/10/03-LLVM%20Pass%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/"><span>03-LLVM Pass使用（传统Pass）</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
