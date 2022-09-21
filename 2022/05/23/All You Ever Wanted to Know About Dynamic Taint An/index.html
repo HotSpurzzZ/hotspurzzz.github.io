@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="介绍了动态污点分析及符号执行，总结了这些技术的框架及关键问题"><meta name="keywords" content="Dynamic Analysis,Paper Reading,Symbol Execution,Taint Analysis"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>论文阅读 -- &quot;All You Ever Wanted to Know About Dynamic Taint Analysis and Forward Symbolic Execution&quot; | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">概念与介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E7%A7%8D%E4%B8%AD%E9%97%B4%E8%AF%AD%E8%A8%80-SIMPLE%EF%BC%88%E7%95%A5%E8%BF%87%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">一种中间语言-SIMPLE（略过）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">动态污点分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Dynamic-Taint-Policies-%E6%B1%A1%E7%82%B9%E7%AD%96%E7%95%A5"><span class="toc-number">4.1.</span> <span class="toc-text">Dynamic Taint Policies 污点策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E7%A7%8D%E5%85%B8%E5%9E%8B%E7%9A%84%E6%B1%A1%E7%82%B9%E7%AD%96%E7%95%A5"><span class="toc-number">4.2.</span> <span class="toc-text">一种典型的污点策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Challenges-and-Opportunities-%E6%8C%91%E6%88%98%E4%B8%8E%E6%9C%BA%E9%81%87"><span class="toc-number">4.3.</span> <span class="toc-text">Challenges and Opportunities 挑战与机遇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89Tainted-Addresses-%EF%BC%9A"><span class="toc-number">4.3.1.</span> <span class="toc-text">（1）Tainted Addresses ：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89Time-of-Detection-vs-Time-of-Attack-%EF%BC%9A"><span class="toc-number">4.3.2.</span> <span class="toc-text">（2）Time of Detection vs. Time of Attack ：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E6%8E%A7%E5%88%B6%E6%B5%81%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90%EF%BC%88Control-flow-taint%EF%BC%89"><span class="toc-number">4.3.3.</span> <span class="toc-text">（3）控制流污点分析（Control-flow taint）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89%E6%B6%88%E9%99%A4%E6%B1%A1%E7%82%B9%EF%BC%88Sanitization%EF%BC%89"><span class="toc-number">4.3.4.</span> <span class="toc-text">4）消除污点（Sanitization）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C-FORWARD-SYMBOLIC-EXECUTION"><span class="toc-number">5.</span> <span class="toc-text">符号执行 FORWARD SYMBOLIC EXECUTION</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Challenges-and-Opportunities-%E6%8C%91%E6%88%98%E4%B8%8E%E6%9C%BA%E9%81%87-1"><span class="toc-number">5.1.</span> <span class="toc-text">Challenges and Opportunities 挑战与机遇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89Symbolic-Memory-Addresses-%E7%AC%A6%E5%8F%B7%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80"><span class="toc-number">5.1.1.</span> <span class="toc-text">（1）Symbolic Memory Addresses 符号内存地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BA%94%E7%94%A8"><span class="toc-number">6.</span> <span class="toc-text">应用</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">16</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">17</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">9</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">论文阅读 -- &quot;All You Ever Wanted to Know About Dynamic Taint Analysis and Forward Symbolic Execution&quot;</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-05-23</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Taint-Analysis/">Taint Analysis</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>Author: Edward J. Schwartz, Thanassis Avgerinos, David Brumley Carnegie Mellon University<br>Topic: Dynamic, Sym_exe, Taint<br>URL: <a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/5504796?reload=true">https://ieeexplore.ieee.org/document/5504796?reload=true</a><br>Where: IEEE Symposium on Security and Privacy<br>Year: 2010<br>Introducetion: 介绍了动态污点分析及符号执行，总结了这些技术的框架及关键问题</p>
+<span id="more"></span>
+<p>本文只是学习并记录笔记，如有错误或不足请谅解指正，谢谢！</p>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><hr>
+<ul>
+<li><strong>要解决的问题：</strong>动态污点分析与正向符号执行虽然被广泛使用，但没有正式定义的算法、没有总结这些技术的关键问题</li>
+<li><strong>已有的解决方案：</strong>无</li>
+<li><strong>本文提出的创新方案概述：</strong>精确地描述了动态污点分析和正向符号执行的算法，作为对通用语言运行时语义的扩展；强调了在安全环境中使用这些技术时的重要实现选择、常见陷阱和注意事项</li>
+<li><strong>效果：</strong>本文将动态污点分析形式化，展示如何使用我们的形式化来梳理和描述各种安全应用程序中常见的实现细节、注意事项和选择</li>
+</ul>
+<h1 id="概念与介绍"><a href="#概念与介绍" class="headerlink" title="概念与介绍"></a>概念与介绍</h1><hr>
+<p>动态污点分析运行一个程序，观察哪些计算受到预定义污点源（如用户输入）的影响。</p>
+<p>动态正向符号执行自动构建描述程序执行路径的逻辑公式，从而将执行推理问题减少到逻辑领域。</p>
+<p>这两种分析可以结合使用，以构建仅表示依赖于受污染值的执行部分的公式。</p>
+<p>两种技术的应用领域：</p>
+<ul>
+<li>未知漏洞检查（Unknown Vulnerability Detection）：动态污点分析可以通过监测是否执行了用户输入来防止代码注入攻击</li>
+<li>自动生成输入过滤器（Automatic Input Filter Generation）：符号执行可用于自动生成输入过滤器，检测并删除输入流中的漏洞</li>
+<li>恶意软件分析（Malware Analysis）</li>
+<li>生成测试用例（Test Case Generation）</li>
+</ul>
+<h1 id="一种中间语言-SIMPLE（略过）"><a href="#一种中间语言-SIMPLE（略过）" class="headerlink" title="一种中间语言-SIMPLE（略过）"></a>一种中间语言-SIMPLE（略过）</h1><hr>
+<p>作者设计了一种中间语言：SIMPIL  来演示动态污染分析和正向符号执行的关键方面，并介绍了该语言的语法、操作语义</p>
+<p>SIMPIL示例：</p>
+<p><img src="/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/Untitled.png"></p>
+<h1 id="动态污点分析"><a href="#动态污点分析" class="headerlink" title="动态污点分析"></a><strong>动态污点分析</strong></h1><hr>
+<p>tip：污点分析<strong>三元组&lt;sources, sinks, sanitizers&gt;</strong></p>
+<ul>
+<li>目的：跟踪信息源（sources）和污点汇聚点（sinks）之间的信息流</li>
+<li>相关基本概念：<ul>
+<li><strong>T</strong>：任何依赖于从污染源派生的数据来计算的程序值，都被认为是受污染的</li>
+<li><strong>F</strong>：任何其他值都被认为是未受污染的</li>
+<li><strong>污点策略P</strong>：准确地确定程序执行时污点如何流动，哪些操作引入新污点，以及对受污点的值执行什么检查</li>
+</ul>
+</li>
+<li>可能出现的错误errors：<ul>
+<li>过度污染：动态污点分析可能将不是从污点源派生的值标记为污点</li>
+<li>缺失污染：可能会遗漏从sources到sinks的信息流</li>
+</ul>
+</li>
+</ul>
+<h2 id="Dynamic-Taint-Policies-污点策略"><a href="#Dynamic-Taint-Policies-污点策略" class="headerlink" title="Dynamic Taint Policies 污点策略"></a>Dynamic Taint Policies 污点策略</h2><ul>
+<li>属性（对应以下三个规则）：<ul>
+<li>新的污点是怎么被<strong>引入</strong>到程序中的</li>
+<li>污点是如何在指令执行时<strong>传播</strong>的</li>
+<li>在执行期间，如何<strong>检查</strong>污点</li>
+</ul>
+</li>
+<li>污点引入规则（Taint introduction rules）：指定如何将污点引入系统<ul>
+<li>污点策略通常会区分输入源：<ul>
+<li>面向互联网的网络输入源 可能会引入污染</li>
+<li>从可信配置文件读取的文件描述符 可能不会</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>污点传播规则（Taint propagation rules）：指定来自受污染或未受污染操作数的数据的污染状态  通常使用命题逻辑来表达传播策略，例如，t1 ∨ t2 表示如果 t1 被污染或 t2 被污染，则结果被污染</li>
+<li>污点检查（Taint Checking）  污染状态值通常用于确定程序的运行时行为，例如，如果跳转目标地址被污染，则攻击检测器可能会暂停执行</li>
+</ul>
+<h2 id="一种典型的污点策略"><a href="#一种典型的污点策略" class="headerlink" title="一种典型的污点策略"></a>一种典型的污点策略</h2><p>受污染跳转策略（ tainted jump policy）</p>
+<p><img src="/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/Untitled%201.png"></p>
+<ul>
+<li>目标：保护潜在易受攻击的程序免受控制流劫持攻击</li>
+<li>该策略的主要思想：从输入派生的值永远不会覆盖控制流值、返回地址、函数指针，确保免受此类攻击</li>
+<li>过程：该策略将所有<code>input()</code>的值标记为污染，然后引入程序中，传播污点  <img src="/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/Untitled%202.png">  如在上图中（污点引入、污点传播、污点检查），检测到<code>input()</code>值最终可能污染y，程序停机</li>
+<li>缺点：不适用所有应用场景（没考虑输入值是否使内存地址受到污染 即上表中Pmem）<strong>Q：为什么没这样做</strong></li>
+</ul>
+<h2 id="Challenges-and-Opportunities-挑战与机遇"><a href="#Challenges-and-Opportunities-挑战与机遇" class="headerlink" title="Challenges and Opportunities 挑战与机遇"></a>Challenges and Opportunities 挑战与机遇</h2><h3 id="（1）Tainted-Addresses-："><a href="#（1）Tainted-Addresses-：" class="headerlink" title="（1）Tainted Addresses ："></a>（1）<strong>Tainted Addresses ：</strong></h3><ul>
+<li>区分<strong>存储地址</strong>和<strong>存储单元值</strong> 并不总是合适的（如上面的典型策略）</li>
+<li>如下面的程序，使用tainted jump policy并不会识别攻击：  <img src="/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/Untitled%203.png"></li>
+<li>改进策略：采用<code>tainted addresses policy</code>（表5），若地址或单元值之一被污染，则结果也判定被污染  但这种改进策略也存在问题：过度污染。举例tcpdump（每次重要运行都会导致taint error）  <img src="/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/Untitled%204.png"></li>
+</ul>
+<h3 id="（2）Time-of-Detection-vs-Time-of-Attack-："><a href="#（2）Time-of-Detection-vs-Time-of-Attack-：" class="headerlink" title="（2）Time of Detection vs. Time of Attack ："></a>（2）<strong>Time of Detection vs. Time of Attack</strong> ：</h3><p>动态污染分析可能会太晚发出警报，不能保证在此之前程序的完整性没有被破坏。</p>
+<ul>
+<li>例如：典型的返回地址覆盖利用漏洞（shellcode覆盖返回地址）中， tainted jump policy可以检测到此类漏洞，但是在第一次覆盖返回地址时不会引发error，只有稍后进行跳转时才会引发、报告漏洞。在这之间，有可能产生其他error。<ul>
+<li><strong>问题</strong>：动态污点分析跟踪的信息太少，<strong>很难</strong>验证返回地址的位置是否被覆盖（canary？1998）答：</li>
+</ul>
+</li>
+</ul>
+<p>基于污点的攻击检测工具通常显示检测时间至攻击时间的间隔</p>
+<h3 id="（3）控制流污点分析（Control-flow-taint）"><a href="#（3）控制流污点分析（Control-flow-taint）" class="headerlink" title="（3）控制流污点分析（Control-flow taint）"></a>（3）控制流污点分析（Control-flow taint）</h3><p>纯动态污点分析不能计算控制依赖关系，因此不能完成基于控制流的污点分析（因为动态分析一次只在一条路径上执行）</p>
+<p>部分解决方法：</p>
+<ul>
+<li>补充静态分析，以此计算控制依赖关系</li>
+<li>试探法（heuristics）：根据场景做出选择是否过度/缺失污染</li>
+</ul>
+<h3 id="4）消除污点（Sanitization）"><a href="#4）消除污点（Sanitization）" class="headerlink" title="4）消除污点（Sanitization）"></a>4）消除污点（Sanitization）</h3><p>动态污点分析只会增加污点的数量，不会主动删除污点。随着程序的执行，被污染的值会越来越多，降低了污染精度。</p>
+<ul>
+<li>检查<strong>常量函数</strong>：<ul>
+<li>一些污点分析工具（<a target="_blank" rel="noopener" href="http://bitblaze.cs.berkeley.edu/">TEMU</a>、<a target="_blank" rel="noopener" href="https://valgrind.org/docs/newsome2005.pdf">TaintCheck</a>）检查常量函数，以去除不必要的污点</li>
+<li>例子：X86中常使用 <code>B = A XOR A</code> 这种语句来对寄存器清零。即B的值不依赖于A。但若A被污染，默认的污点分析策略会判断B也被污染</li>
+</ul>
+</li>
+<li>某些领域中，将<strong>加密散列函数的输出</strong>视为无污染值：加密函数的输入可能是用户指定的，但<strong>很难</strong>找到会导致加密散列函数输出任意值的输入。  <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/1554339.1554349">Newsome等人</a>通过量化用户对函数的输出可以施加多少控制，以此来自动识别这种情况。</li>
+<li>可能存在依赖于程序的消除。例如，如果程序逻辑本身执行清理，则攻击检测器可能希望不污染值</li>
+</ul>
+<h1 id="符号执行-FORWARD-SYMBOLIC-EXECUTION"><a href="#符号执行-FORWARD-SYMBOLIC-EXECUTION" class="headerlink" title="符号执行 FORWARD SYMBOLIC EXECUTION"></a>符号执行 FORWARD SYMBOLIC EXECUTION</h1><hr>
+<p>正向符号执行 —&gt;构建表示程序执行的逻辑公式 —&gt;  对程序不同输入进行推理</p>
+<ul>
+<li>优势：可以一次推理多个输入，推断不同的分支</li>
+<li>与常规执行的区别：用符号替代具体的值</li>
+</ul>
+<p><img src="/2022/05/23/All%20You%20Ever%20Wanted%20to%20Know%20About%20Dynamic%20Taint%20An/Untitled%205.png"></p>
+<p>详细理解符号执行，可以看：</p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.so/Symbolic-Execution-for-Software-Testing-Three-Decades-Later-ddec41dd5bbb431bb60b2c6d1aa931e0">Symbolic Execution for Software Testing: Three Decades Later</a></p>
+<h2 id="Challenges-and-Opportunities-挑战与机遇-1"><a href="#Challenges-and-Opportunities-挑战与机遇-1" class="headerlink" title="Challenges and Opportunities 挑战与机遇"></a>Challenges and Opportunities 挑战与机遇</h2><p>问题：符号内存；处理系统调用；路径选择。</p>
+<h3 id="（1）Symbolic-Memory-Addresses-符号内存地址"><a href="#（1）Symbolic-Memory-Addresses-符号内存地址" class="headerlink" title="（1）Symbolic Memory Addresses 符号内存地址"></a>（1）Symbolic Memory Addresses 符号内存地址</h3><ul>
+<li>原理：<ul>
+<li>具体执行时，使用具体值；符号执行时，使用表达式。</li>
+<li>从符号表达式load时，表示从任何符合条件的地址处load</li>
+<li>store到符号地址时，表示能覆盖任何符合条件的地址</li>
+</ul>
+</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li><strong>别名问题</strong>，两个内存操作引用同一地址时，就会出现潜在的地址别名<ul>
+<li>例如：  <code>store( addr1 , v )</code>   <code>z = load( addr2 )</code>  若：addr1 = addr2，则为别名，load到z中的值为v  若：addr1 ≠ addr2，则不会load v，  因此，符号内存地址也可能导致混叠问题</li>
+<li>解决方法：<ul>
+<li>去除符号地址，不重名（<a target="_blank" rel="noopener" href="http://bitblaze.cs.berkeley.edu/">Vine</a> 可以根据名称选择性地将所有内存地址重写为标量）  例如上面的例子可以改写为：  <code>mem_addr1 = v</code>  <code>z = mem_addr2</code></li>
+<li>SMT求解器进行推理  <code>mem1 = (mem0 with mem0[addr1] = v) ^ z =mem1[addr2]</code> （暂时没看懂）  理解：addr1处的值 = v  ，mem1 = mem0</li>
+<li>别名分析（静态分析），推断两个引用是否指向同一个地址</li>
+</ul>
+</li>
+<li>以往工作：  大多数工作没有专门解决符号地址的问题。  KLEE采用别名分析+SMT求解器；DART[35]、CUTE[56]只处理线性约束的公式，不能处理一般化的符号引用  访问线性地址时，可以解线性方程组，查看是否有别名（2010前没有相关工作）</li>
+</ul>
+</li>
+<li>路径选择<ul>
+<li>存在路径爆炸的问题，需要良好的路径选择策略：<ul>
+<li>设置循环迭代次数上限</li>
+<li>深度优先搜索：如KLEE和EXE，并设置最大深度</li>
+<li>混合测试：符号执行+实际执行；变形策略：generational search：单次符号执行生成多个具体的测试输入</li>
+<li>随机路径策略：如KLEE。符号执行引擎通过从根节点到叶节点的随机遍历状态树来选择状态，浅层路径，可以防止执行卡住</li>
+<li>启发式：探索路径，提高覆盖率</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>符号跳转问题<ul>
+<li>指：GOTO跳转目标不是具体位置，而可能是一个表达式</li>
+<li>解决方法：<ul>
+<li>符号执行+实际执行：观察下一个jump的目标。缺点：只探索已知的跳转目标</li>
+<li>SMT求解器：条件取反求解其他路径</li>
+<li>静态分析：源码级间接跳跃分析通常采用指针分析的形式，二进制级跳转静态分析用于识别跳转目标表达式中哪些值会被引用</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>处理系统、库函数问题<ul>
+<li>系统调用会引入新的符号变量</li>
+<li>解决方法：<ul>
+<li>创建函数的总结（summaries）：描述在具体调用相应代码时发生的副作用的模型，但需要手动生成</li>
+<li>混合执行：先实际执行，得到系统调用的返回值，再在符号执行中使用该值。但结果不一定可靠，因为每次调用不一定返回相同的值（如时间相关函数）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>性能<ul>
+<li>a)程序分支数量的运行时间指数，b)公式数量的指数，以及c)每个分支的公式大小的指数</li>
+<li>解决方法：<ul>
+<li>硬件提升</li>
+<li>赋予变量不同名称</li>
+<li>识别公式冗余</li>
+<li>识别独立的子公式：将多次使用过的公式保存缓存，如KLEE和EXE</li>
+<li>使用weakest precondition计算公式。如<a target="_blank" rel="noopener" href="https://www.cylab.cmu.edu/_files/pdfs/tech_reports/CMUCyLab10002.pdf">一种算法</a>，在使用该算法之前，必须将程序转换为动态单赋值形式</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>混合执行（Mixed）<ul>
+<li>根据程序的应用及类型，将符号输入限制为某些形式，可能会比较合适</li>
+<li>例子：server的配置文件不需要符号化（一般不允许改写配置文件），而网络包数据需要符号化</li>
+</ul>
+</li>
+</ul>
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><ol>
+<li>自动化测试用例生成（提高代码覆盖率）：符号执行</li>
+<li>过滤器自动生成：符号执行</li>
+<li>自动网络协议解析：动态污点分析</li>
+</ol>
+<p>其他：恶意软件分析、污点分析框架（动静结合）等</p>
+<p>其他作者的笔记：</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/62bac645c034">https://www.jianshu.com/p/62bac645c034</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/05/23/All You Ever Wanted to Know About Dynamic Taint An/">http://example.com/2022/05/23/All You Ever Wanted to Know About Dynamic Taint An/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Dynamic-Analysis/">Dynamic Analysis</a><a class="post-meta__tags" href="/tags/Paper-Reading/">Paper Reading</a><a class="post-meta__tags" href="/tags/Symbol-Execution/">Symbol Execution</a><a class="post-meta__tags" href="/tags/Taint-Analysis/">Taint Analysis</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/07/10/AURORA%20Statistical%20Crash%20Analysis%20for%20Automated%20Ro/"><i class="fa fa-chevron-left">  </i><span>论文阅读 -- &quot;AURORA - Statistical Crash Analysis for Automated Root Cause Explanation&quot;</span></a></div><div class="next-post pull-right"><a href="/2022/05/10/03-LLVM%20Pass%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/"><span>03-LLVM Pass使用（传统Pass）</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
