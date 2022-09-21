@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/04/20/Kernel%20k-means,%20Spectral%20Clustering%20and%20Normalized/</loc>
+    
+    <lastmod>2022-09-21</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://example.com/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/</loc>
     
     <lastmod>2022-09-21</lastmod>
@@ -290,6 +297,13 @@
     <priority>0.6</priority>
   </url>
   
+  <url>
+    <loc>http://example.com/tags/Data-mining/</loc>
+    <lastmod>2022-09-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
   
   <url>
@@ -350,6 +364,13 @@
   
   <url>
     <loc>http://example.com/categories/Taint-Analysis/</loc>
+    <lastmod>2022-09-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/categories/Data-mining/</loc>
     <lastmod>2022-09-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
