@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="实现了FIBER工具：针对安卓系统，通过Angr符号执行、生成签名，判断是否打上了已发布的补丁"><meta name="keywords" content="Symbol Execution,Angr,Android"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>论文阅读 -- &quot;Precise and Accurate Patch Presence Test for Binaries&quot; | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%91%98%E8%A6%81%E4%B8%8E%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">一、摘要与背景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%83%8C%E6%99%AF%EF%BC%9A"><span class="toc-number">1.0.1.</span> <span class="toc-text">主要背景：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">二、问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">三、相关工作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1"><span class="toc-number">4.</span> <span class="toc-text">系统设计</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81Signature"><span class="toc-number">4.1.</span> <span class="toc-text">1、Signature</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Change-Site-Analyzer"><span class="toc-number">4.2.</span> <span class="toc-text">2、Change Site Analyzer</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%8F%91%E7%8E%B0%E7%8B%AC%E7%89%B9%E7%9A%84%E6%BA%90%E4%BB%A3%E7%A0%81%E5%8F%98%E6%9B%B4%EF%BC%88Unique-Source-Change-Discovery%EF%BC%89"><span class="toc-number">4.2.1.</span> <span class="toc-text">2-1 发现独特的源代码变更（Unique Source Change Discovery）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2%E9%80%89%E6%8B%A9%E6%BA%90%E4%BB%A3%E7%A0%81%E5%8F%98%E6%9B%B4%E7%82%B9%EF%BC%88Source-Change-Selection%EF%BC%89"><span class="toc-number">4.2.2.</span> <span class="toc-text">2-2选择源代码变更点（Source Change Selection）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81Signature-Generator"><span class="toc-number">4.3.</span> <span class="toc-text">3、Signature Generator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%AD%BE%E5%90%8D%E7%94%9F%E6%88%90%EF%BC%88Binary-Signature-Generation%EF%BC%89"><span class="toc-number">4.3.1.</span> <span class="toc-text">3-1二进制签名生成（Binary Signature Generation）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81%EF%BC%88Binary-Signature-Validation%EF%BC%89"><span class="toc-number">4.3.2.</span> <span class="toc-text">3-2二进制签名验证（Binary Signature Validation）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%AD%BE%E5%90%8D%E5%8C%B9%E9%85%8D%E5%BC%95%E6%93%8E%EF%BC%88Signature-Matching-Engine%EF%BC%89"><span class="toc-number">4.4.</span> <span class="toc-text">4、签名匹配引擎（Signature Matching Engine）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%97%E7%95%A5%E5%8C%B9%E9%85%8D"><span class="toc-number">4.4.1.</span> <span class="toc-text">粗略匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%BE%E7%A1%AE%E5%8C%B9%E9%85%8D"><span class="toc-number">4.4.2.</span> <span class="toc-text">精确匹配</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%84%E4%BC%B0"><span class="toc-number">6.</span> <span class="toc-text">评估</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">6.1.</span> <span class="toc-text">实验过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%8F%82%E8%80%83%E4%BA%8C%E8%BF%9B%E5%88%B6-Reference-binary-preparation"><span class="toc-number">6.1.1.</span> <span class="toc-text">准备参考二进制 Reference binary preparation.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A6%BB%E7%BA%BF%E7%AD%BE%E5%90%8D%E7%94%9F%E6%88%90%E5%92%8C%E9%AA%8C%E8%AF%81-Offline-signature-generation-and-validation"><span class="toc-number">6.1.2.</span> <span class="toc-text">离线签名生成和验证 Offline signature generation and validation.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8%E7%BA%BF%E5%8C%B9%E9%85%8D-Online-matching"><span class="toc-number">6.1.3.</span> <span class="toc-text">在线匹配 Online matching</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E7%A1%AE%E6%80%A7"><span class="toc-number">6.2.</span> <span class="toc-text">准确性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD"><span class="toc-number">6.3.</span> <span class="toc-text">性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AA%E5%AF%BC%E5%85%A5%E7%9A%84%E6%BC%8F%E6%B4%9E"><span class="toc-number">6.4.</span> <span class="toc-text">未导入的漏洞</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">18</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">20</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">9</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">论文阅读 -- &quot;Precise and Accurate Patch Presence Test for Binaries&quot;</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-03-09</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Symbol-Execution/">Symbol Execution</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>Author: Hang Zhang and Zhiyun Qian, University of California, Riverside<br>Code: <a target="_blank" rel="noopener" href="https://github.com/fiberx/fiber">https://github.com/fiberx/fiber</a><br>Topic: Angr<br>URL: <a target="_blank" rel="noopener" href="https://www.usenix.org/conference/usenixsecurity18/presentation/zhang-hang">https://www.usenix.org/conference/usenixsecurity18/presentation/zhang-hang</a><br>Where: 27th USENIX Security Symposium<br>Year: 2018<br>Introducetion: 实现了FIBER工具：针对安卓系统，通过生成签名的方式，判断是否打上了已发布的补丁</p>
+<span id="more"></span>
+<p>本文只是学习并记录笔记，如有错误或不足请谅解指正，谢谢！</p>
+<h1 id="一、摘要与背景"><a href="#一、摘要与背景" class="headerlink" title="一、摘要与背景"></a>一、摘要与背景</h1><hr>
+<h3 id="主要背景："><a href="#主要背景：" class="headerlink" title="主要背景："></a>主要背景：</h3><p>软件世界种总是存在着各种漏洞，对抗漏洞的主要方法是打补丁（patch）来修复，对软件进行更新。随着程序开发的发展，代码复用成为了一种常见的开发方式，开源项目能够被很多的开发者重复使用在不同软件程序上。然而，当开源项目出现了（或被发现存在）漏洞，会同时影响到所有复用这个项目的使用者，而当开源项目的维护者打入了补丁、修复了漏洞后，这些复用该项目的程序是否及时地更新了相应的补丁？这会严重影响这些软件的安全性。</p>
+<p>因此，能否及时、有效地检测目标程序是否更新了相应的补丁，对于开源软件世界是一个严峻的挑战。</p>
+<p><strong>补丁—&gt;对抗漏洞 —&gt;如何确保软件存在安全补丁？</strong></p>
+<ul>
+<li><p>什么是补丁存在度测试：在假设已知受影响的函数和补丁本身的情况下，检查一个特定的补丁是否被应用到一个未知的目标上。</p>
+</li>
+<li><p>以往的两方面工作：</p>
+<p>  Source to source：源代码级别：目标是源代码信息，通常需要提供补丁的相应信息</p>
+<p>  Binary to Binary：二进制特征：单纯地比较二进制文件</p>
+</li>
+</ul>
+<h1 id="二、问题"><a href="#二、问题" class="headerlink" title="二、问题"></a>二、问题</h1><hr>
+<ul>
+<li>背景：<ul>
+<li>代码开源的情况越来越常见了（Github）</li>
+<li>许多开源代码或组件在封闭源代码软件中被广泛重用（OpenSSL、Linux-Base Kernel等），因此Source to Source这种源代码级别的检测方法未可用</li>
+<li>对于Binary-only层面，由于搜索范围非常大，不得不使用基于相似度的模糊匹配（similarity-based fuzzy matching）来加快搜索过程，但精度不够准确；且安全补丁大多是微小的变化，基于相似性的方法无法有效判断是否打过补丁。</li>
+</ul>
+</li>
+<li>解决：  为了解决这个问题，作者提出了Fiber这一工具：首先仔细分析开源安全补丁，生成细粒度的二进制签名（fine-grained binary signatures）反映补丁引入的最具代表性的语法和语义变化，用于搜索目标二进制文件。</li>
+</ul>
+<p>技术问题：如何生成能很好地表示源代码级补丁的二进制签名？（generate binary signatures that well represent the source-level patch）</p>
+<p>步骤：</p>
+<ul>
+<li>挑选并选择补丁中最合适的部分作为生成二进制签名的候选者</li>
+<li>生成尽可能保留源代码级信息的二进制签名，包括补丁和相应的函数作为一个整体</li>
+</ul>
+<p>贡献：</p>
+<ul>
+<li>在“源到二进制（Source to Binary）”下制定了补丁存在测试问题，弥合了从一般错误搜索到精确和准确的补丁存在测试的差距</li>
+<li>在patch中选取最合适的部分，生成代表源代码级patch的二进制签名</li>
+<li>系统地评估了基于不同时间戳、版本和厂商的Android内核镜像2上的107个真实世界的漏洞和安全补丁，表明FIBER在安全补丁存在度测试中具有较高的准确性</li>
+</ul>
+<h1 id="三、相关工作"><a href="#三、相关工作" class="headerlink" title="三、相关工作"></a>三、相关工作</h1><hr>
+<p>漏洞搜索如何应用与补丁存在测试问题上</p>
+<ul>
+<li>Source-level bug search<ul>
+<li>一般的目标：寻找与给定的bug代码相似的代码片段</li>
+<li>漏洞搜索方案<strong>通常使用从源代码中提取的特征</strong>（包括纯字符串、标记 和解析树 ）构建为某种形式的相似性匹配，<strong>但这种方法</strong>使得确定<strong>识别出的类似代码片段是否被修补变得困难</strong>（因为打过补丁和未打过补丁的版本可能类似(特别是对于通常很小的安全补丁)）</li>
+</ul>
+</li>
+<li>Binary-level bug search<ul>
+<li>与源码级漏洞搜索类似，为了克服缺乏源级信息(如变量类型和名称)的挑战，需要<strong>寻找替代特征</strong>，如<strong>二进制程序的结构</strong></li>
+<li>不假设符号表的可用性，因此被迫检查每个函数，即使它只打算对特定函数进行准确的补丁存在性测试</li>
+<li>现有的解决方案的设计是主要为了速度而不是精度</li>
+</ul>
+</li>
+</ul>
+<p><strong>FIBER</strong>处于一个独特的位置<strong>，</strong>利用源代码级别的信息来回答一个更具体的问题——是否在目标二进制文件中修补了特定的受影响的函数。</p>
+<h1 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a>系统设计</h1><hr>
+<p>系统架构</p>
+<p><img src="/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/Untitled.png"></p>
+<p>主要输入：</p>
+<ul>
+<li>Source Patches 源代码级补丁信息</li>
+<li>Ref .function(src) 完整的源代码参考</li>
+<li>Ref .function(bin) 编译后的引用二进制中受影响的函数</li>
+<li>Tgt. function(bin) 目标二进制中受影响的函数</li>
+</ul>
+<p>三个组件：</p>
+<ul>
+<li>Change site analyzer：分析补丁中每个代码变更点和相应的参考函数来挑选那些最具代表性、独特且易于匹配的源变更，模仿真正的分析师会做的事情</li>
+<li>Signature generator：签名生成器，负责将源级更改点转换为二进制级签名（利用二进制符号执行）</li>
+<li>Matching engine：任务是在目标二进制文件中搜索给定的签名。首先需要在符号表的帮助下在目标二进制文件中找到受影响的函数。然后通过匹配与补丁相关的本地化CFG的拓扑结构所表示的语法来完成搜索，然后是语义公式(由于符号执行而变慢)。</li>
+</ul>
+<p>范围：</p>
+<p>1、FIBER支持分析不同架构的二进制文件，并使用不同的编译器选项进行编译。</p>
+<p>2、FIBER本质上不绑定任何源语言，尽管目前它可以在C代码上工作。需要编译器生成调试信息。</p>
+<h2 id="1、Signature"><a href="#1、Signature" class="headerlink" title="1、Signature"></a>1、Signature</h2><p>通常，“理想”的签名两个标准：</p>
+<p>1、Unique：独一无二，该签名不能在补丁以外的地方找到（这要求签名不能过于简单）</p>
+<p>2、Stable：稳定，签名应该对代码库的演化具有适应性（这也要求签名不能过于复杂）</p>
+<p>签名是一组二进制指令，它们不仅在结构上与源码级签名相对应，而且还用足够的信息进行注释，以便它们可以明确地映射到原来的源码级更改点。</p>
+<h2 id="2、Change-Site-Analyzer"><a href="#2、Change-Site-Analyzer" class="headerlink" title="2、Change Site Analyzer"></a>2、Change Site Analyzer</h2><p>输入：<code>Source Patches</code> 源码补丁及<code>Ref .function(src)</code> 参考代码库</p>
+<p>目的：</p>
+<ul>
+<li>由于一个补丁可能会在不同的功能内引入多个变化点，分析器的目标是根据“Signature”中提到的标准选择一个合适的签名</li>
+<li>了解补丁变更的地点</li>
+</ul>
+<h3 id="2-1-发现独特的源代码变更（Unique-Source-Change-Discovery）"><a href="#2-1-发现独特的源代码变更（Unique-Source-Change-Discovery）" class="headerlink" title="2-1 发现独特的源代码变更（Unique Source Change Discovery）"></a>2-1 发现独特的源代码变更（Unique Source Change Discovery）</h3><p>打补丁的方式有多种，删除、添加、修改，作者主要关注后两种情况。</p>
+<p>对于补丁中添加的每行代码，执行以下步骤：</p>
+<p>1、独特性测试（Uniqueness test），不仅捕获基于令牌（token-based）的信息，而且捕获与语义相关的信息</p>
+<p>2、上下文相关（可选）（Context addition），可以有多个上下文语句</p>
+<p>3、细粒度的变化检测（Fine-grained change detection）：一般，补丁以源码行变化的形式存在，通过与相邻的已删除或已添加的行比较，可以在单个语句/行中检测这细粒度的变化。确保我们不包括会扩大签名的不必要部分。</p>
+<p>4、类型的洞察力（Type insight）：源码语句中涉及的变量类型也很重要，因为它将指导后面的二进制签名生成和匹配</p>
+<h3 id="2-2选择源代码变更点（Source-Change-Selection）"><a href="#2-2选择源代码变更点（Source-Change-Selection）" class="headerlink" title="2-2选择源代码变更点（Source Change Selection）"></a>2-2选择源代码变更点（Source Change Selection）</h3><p>上一步可能会为单个补丁生成多个候选的独特代码变更。一个补丁会有多处代码变化，且在实践中，这些变化中的一个的存在可能已经表明补丁的存在。</p>
+<p>因此，一些源代码更改比其他的更适合生成二进制签名。</p>
+<p>FIBER对上一步产生的代码候选变更点进行排序，并对前N个进行进一步处理（基于三个因素）</p>
+<p>1、到功能入口的距离：越近越好</p>
+<p>2、函数大小：越小越好</p>
+<p>3、代码变化类型（最重要）</p>
+<p>将补丁中的代码变化分为几种通用类型：</p>
+<ul>
+<li>函数调用：新的函数调用或参数的改变，优先级最高（可以根据是否有对该函数的调用判断是否打了补丁）</li>
+<li>条件相关（if等）：同时引入了结构变化和语义变化</li>
+<li>赋值</li>
+</ul>
+<p>等</p>
+<h2 id="3、Signature-Generator"><a href="#3、Signature-Generator" class="headerlink" title="3、Signature Generator"></a>3、Signature Generator</h2><p>将参考源代码编译成参考二进制文件，根据所选的独特源代码的变化，将从中生成二进制签名</p>
+<p>（保留编译器生成的所有调试信息，以备将来使用）</p>
+<h3 id="3-1二进制签名生成（Binary-Signature-Generation）"><a href="#3-1二进制签名生成（Binary-Signature-Generation）" class="headerlink" title="3-1二进制签名生成（Binary Signature Generation）"></a>3-1二进制签名生成（Binary Signature Generation）</h3><p>识别并组织与源码变更相关的指令</p>
+<p>给定参考二进制文件，首先要定位与源代码更改相关的相应二进制指令。（通过调试信息）</p>
+<p>本地CFG的拓扑结构反映了原始源码变化的结构</p>
+<p>理论上，上述本地CFG中识别的所有指令都将成为二进制签名的一部分。然而，这在实践中并不好，因为只有一个指令子集实际上总结了关键行为(数据流语义);我们把这样的指令称为“<strong>根指令</strong>”。</p>
+<p>（注意：编译器仍然可能为相同的语句生成稍微不同的根指令(由于编译器优化等)。）</p>
+<p><img src="/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/Untitled%201.png"></p>
+<p>只要根指令的类型相同，我们就认为它们是等价的(根指令的规范化)。</p>
+<p>需要确保根指令有足够的标签(这是我们的二进制签名)，以便它们可以唯一地映射到源代码更改。</p>
+<p>从函数的角度，指令中任何操作数只能从四个来源派生：</p>
+<p>（1）函数参数（外部输入）</p>
+<p>（2）局部变量（在函数中定义）</p>
+<p>（3）函数调用返回值</p>
+<p>（4）立即数（常量）</p>
+<p>并对这四种类型进行不同的处理</p>
+<p>根据作者经验，发现即使对签名中的这些基本元素没有精确的了解，描述它们的语义公式通常已经足够独特，可以注释操作数;最终允许我们唯一地将根指令映射到源级语句。</p>
+<p>二进制签名匹配：</p>
+<p><img src="/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/Untitled%202.png"></p>
+<p>目标源有相同的补丁语句(应该被认为是补丁)，即使它也插入了一些带有新的本地变量的额外代码。</p>
+<p>尝试匹配二进制签名时，有三点值得注意：</p>
+<p>1、不能在引用和目标之间盲目地使用固定偏移量来表示同一个局部变量。策略：(1)推断目标二进制文件中局部变量的类型，并得出结论:sp+0x10是唯一的整数变量，因此必须对应于sp+0x8。(2)分析目标二进制文件中所有局部变量的行为，并尝试匹配引用中最类似sp+0x8的那个。</p>
+<p>2、孤立的基本块级分析是不够的</p>
+<p>3、在目标二进制文件的最后一个基本块中有一个额外的存储指令，它将X0 (do sth()的返回值保存到sp+0x8(即s)。注意，从数据流的角度来看，这可能看起来像根指令。但是，由于它试图在原始签名中存储返回值而不是公式，因此不会导致错误匹配。</p>
+<h3 id="3-2二进制签名验证（Binary-Signature-Validation）"><a href="#3-2二进制签名验证（Binary-Signature-Validation）" class="headerlink" title="3-2二进制签名验证（Binary Signature Validation）"></a>3-2二进制签名验证（Binary Signature Validation）</h3><p>原因：转化过程中的信息丢失</p>
+<p>（1）独特性：对于每个补丁，准备补丁及未打补丁的二进制文件作为对象，再匹配它们的二进制签名，若打了补丁的签名在未打补丁的签名中无法匹配，则说明其独特性。还可能存在一个独特的二进制签名可能有多个匹配的情况。</p>
+<p>（2）稳定：源码变化的大小和二进制签名是相关的。还可以准备多个补丁和未补丁的函数二进制版本，并针对它们测试生成的二进制签名。这有助于挑选出那些最稳定的二进制签名，这些签名存在于所有打过补丁的二进制文件中，而不存在于未打过补丁的二进制文件中。</p>
+<h2 id="4、签名匹配引擎（Signature-Matching-Engine）"><a href="#4、签名匹配引擎（Signature-Matching-Engine）" class="headerlink" title="4、签名匹配引擎（Signature Matching Engine）"></a>4、签名匹配引擎（Signature Matching Engine）</h2><p>负责在目标二进制(即测试对象)中搜索给定的二进制签名。</p>
+<p>首先需要通过目标二进制中的符号表来定位目标函数，然后开始搜索其中的二进制签名。</p>
+<h3 id="粗略匹配"><a href="#粗略匹配" class="headerlink" title="粗略匹配"></a>粗略匹配</h3><p>通过一些易于收集的特性来匹配二进制签名，包括：</p>
+<p>（1）CFG拓扑。二进制签名本身基本上就是CFG函数的一个子图。</p>
+<p>（2）基本块的退出类型（exit）。一般来说，每个基本块都有两种退出类型:无条件跳转（call、return等）和条件跳转。因此可以通过退出类型快速比较基本块。</p>
+<p>（3）根指令类型。分析签名中的每个基本块，并确定其根指令集。指令类型可以用来快速比较两个基本块。需要为目标函数二进制中的每个基本块生成数据流图。</p>
+<p>通过以上特性，我们可以快速缩小目标函数中的搜索空间。如果在这一步中没有找到匹配，我们已经可以断定签名不存在，否则，我们仍然需要进一步精确地比较每个候选匹配。</p>
+<h3 id="精确匹配"><a href="#精确匹配" class="headerlink" title="精确匹配"></a>精确匹配</h3><p>利用语义公式对两组根指令执行精确匹配。</p>
+<p>首先需要为所有匹配的候选根指令生成语义公式，若语义公式匹配（它们映射到相同的源码级签名/语句），则视为等价</p>
+<p>如何比较两个语义公式？（之前有计算相似分数）</p>
+<p>但FIBER—明确的答案：定理证明器被用于证明两个公式[14]的语义等价性，这无疑提供了最好的准确性，但不幸的是，在实践中可能非常昂贵。选择了一个中间立场。根据观察，语义公式捕获了依赖关系，因此指令的顺序不能交换，我们知道公式的结构不太可能改变。</p>
+<p>基本上，匹配过程只是递归地匹配AST中的运算和操作数，并进行一些必要的松弛（例如，如果运算符是可交换的，则操作数的顺序无关紧要）。</p>
+<p>例如：(a+b)<strong>2不会变成a</strong>2+b*2</p>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>使用Angr符号执行引擎生成语义公式。（改变了Angr的内部结构）</p>
+<p>架构依赖：</p>
+<p>原则上FIBER支持任何体系结构，因为我们可以将源代码编译成任何体系结构的二进制文件。</p>
+<p>Angr将二进制文件提升到一种中间语言VEX(它抽象出指令集架构的差异)</p>
+<p>根指令注释（Root instruction annotation）：</p>
+<p>为了生成根指令操作数的语义公式，需要分析从函数入口到根指令的所有二进制代码。我们选择<strong>符号执行</strong>作为我们的分析方法，因为它可以覆盖所有可能的执行路径，并获得沿着路径上任意一点的任何寄存器和内存位置的值表达式。</p>
+<p>作者采用的符号执行路径爆炸优化方法：</p>
+<p>（1）路径修剪（Path pruning）。在开始符号执行之前，我们将首先在函数CFG中执行深度优先搜索(DFS)，找到从函数入口到根指令的所有路径。然后，我们将只把这些路径中包含的基本块放在执行白名单中，所有其他的基本块将被符号执行引擎删除。此外，我们还将循环展开次数限制为2次，以进一步减少路径的数量。</p>
+<p>（2）非约束符号执行（under-constrained symbolic execution）：不受约束的符号执行可以处理单个函数，而不用担心其调用上下文，从而有效地将路径空间限制在单个函数中。虽然函数的输入(如参数)在一开始是不受约束的，但它不会影响语义公式的提取，因为它们不需要这样的初始约束。</p>
+<p>无约束的输入也可能导致执行引擎在现实世界的执行中包含不可行的路径，然而，我们的语义公式的目标是使它们在引用和目标二进制之间具有可比性，只要我们对双方使用相同的过程，提取的公式仍然可以用于补丁存在测试（patch presence test）的比较。最后，我们使用函数内的符号执行，也就是说，不跟随被调用者(它们的返回值也将不受约。束)，这在实践中已经可以生成公式，使根指令唯一且稳定。</p>
+<p>（3）验证模式下的符号执行（Symbolic execution in veritesting mode）：</p>
+<p>验证（veritesting ）是一种将静态符号执行集成到动态符号执行的技术，可以提高执行效率。</p>
+<p>动态符号执行—基于路径—开销大</p>
+<p>静态符号执行—基于基本块—公式更复杂（需要携带所有可以到达当前节点的路径的不同约束）</p>
+<p>但FIBER不需要求解这些公式，只需比较这些从参考和目标二进制文件中提取的公式，</p>
+<p>当我们认为一个二进制签名在目标中匹配时，我们要求目标中的计算公式包含签名中的所有公式(可以是一个超集)。</p>
+<h1 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h1><p>评估数据集：Android内核。原因：安卓受欢迎；很多开发分支由不同供应商（华为三星等）维护。其他Android供应商可能不会及时将安全补丁移植到他们自己的内核。</p>
+<p>（1）参考内核源代码和安全补丁</p>
+<p>（2）目标Android内核映像和源代码</p>
+<p>注：供应商发布的二进制映像(有时每月一次)比源代码包要多得多。我们只对能找到相应源代码的二进制映像进行评估，而源代码只能作为patch presence test的ground truth。</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="准备参考二进制-Reference-binary-preparation"><a href="#准备参考二进制-Reference-binary-preparation" class="headerlink" title="准备参考二进制 Reference binary preparation."></a>准备参考二进制 Reference binary preparation.</h3><p>首先需要将参考源代码编译成二进制文件，并在此基础上生成二进制签名。(自由地选择编译器、它们的选项和目标体系结构，当然应该最接近目标二进制的编译配置)</p>
+<p>首先编译多个参考二进制文件与所有的组合常见的编译器(使用gcc和clang)和优化水平(我们使用水平O1 - O3和Os)，然后使用BinDiff来测试每个参考二进制和目标二进制的相似性，最相似的参考二进制文件最终将用于二进制签名的生成。</p>
+<h3 id="离线签名生成和验证-Offline-signature-generation-and-validation"><a href="#离线签名生成和验证-Offline-signature-generation-and-validation" class="headerlink" title="离线签名生成和验证 Offline signature generation and validation."></a>离线签名生成和验证 Offline signature generation and validation.</h3><p>对于每个安全补丁，我们最多保留三个二进制签名，通过将它们与已修补和未修补的参考内核图像进行匹配来测试它们的唯一性。</p>
+<h3 id="在线匹配-Online-matching"><a href="#在线匹配-Online-matching" class="headerlink" title="在线匹配 Online matching"></a>在线匹配 Online matching</h3><p>给定一个特定的安全补丁，我们将尝试在目标内核中匹配它的所有二进制签名。（所有Android内核映像都是用符号表编译的。因此，我们可以很容易地找到受影响的函数。）</p>
+<p>只要一个签名能够与引用补丁内核中的匹配，那么我们就会说该补丁存在于目标内核中。</p>
+<h2 id="准确性"><a href="#准确性" class="headerlink" title="准确性"></a>准确性</h2><p><img src="/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/Untitled%203.png"></p>
+<p>准确性非常好，没有假阳性（FP），非常少的假阴性（FN）。</p>
+<p>FP可能会导致开发人员错误地认为已经应用了补丁，而实际上并没有(这是一个严重的安全风险)。</p>
+<p>相比之下，FN只会花费一些额外的时间，分析师意识到代码实际上是打了补丁</p>
+<p>出现FN的原因：</p>
+<p>（1）内联函数：目标内核有不同的内联行为，我们的签名将无法匹配</p>
+<p>（2）函数原型变化：有时函数原型会在不同的内核映像之间发生变化（函数参数的数量和顺序可能会有所不同。）</p>
+<p>（3）定制代码：由于代码定制，上下文可能会在不同的内核映像之间有所不同</p>
+<p>（4）补丁的适应：补丁可能需要针对不同供应商维护的内核进行调整，因为不同内核分支之间的脆弱功能并不总是完全相同。</p>
+<p>（5）其他工程问题：例如，某些二进制指令无法被angr识别和解码，这将影响后续CFG的生成和符号执行。</p>
+<h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p><img src="/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/Untitled%204.png"></p>
+<p>一小部分补丁需要比平均匹配更长的时间，补丁的改变网站定位在非常大的和复杂的功能(例如,cve - 2017 - 0521),因此,匹配引擎可能遇到根深处的指令功能。</p>
+<h2 id="未导入的漏洞"><a href="#未导入的漏洞" class="headerlink" title="未导入的漏洞"></a>未导入的漏洞</h2><p>FIBER会产生一些TN情况，表面存在未修补的漏洞，如果相关的安全补丁在测试对象的发布日期之前已经可用，那么这意味着测试对象未能及时应用补丁。</p>
+<p><img src="/2022/03/09/Precise%20and%20Accurate%20Patch%20Presence%20Test%20for%20Binar/Untitled%205.png"></p>
+<p>可以看到，即使是一些关键漏洞也没有及时修补，这表明它们很有可能被用来完全破坏内核以执行任意代码。</p>
+<p>注意：FIBER旨在测试目标内核中是否存在补丁，但是，缺少安全补丁并不一定意味着目标内核可以被利用。因此，仍需进一步验证。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><hr>
+<p>在本文中，我们提出了“源码到二进制”场景下的补丁存在性测试问题。然后，我们设计并实现了FIBER，这是一个全自动的解决方案，可以充分利用源代码级别的信息，在二进制文件中进行精确的补丁存在测试。FIBER已经通过真实世界的安全补丁和一组不同的Android内核图像进行了系统评估，结果表明，它可以实现良好的准确性和可接受的性能，因此对于安全分析人员来说非常实用。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/03/09/Precise and Accurate Patch Presence Test for Binar/">http://example.com/2022/03/09/Precise and Accurate Patch Presence Test for Binar/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Symbol-Execution/">Symbol Execution</a><a class="post-meta__tags" href="/tags/Angr/">Angr</a><a class="post-meta__tags" href="/tags/Android/">Android</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/03/26/Panda%E5%AE%89%E8%A3%85%E5%8F%8A%E5%9F%BA%E7%A1%80/"><i class="fa fa-chevron-left">  </i><span>Panda安装及基础操作</span></a></div><div class="next-post pull-right"><a href="/2022/02/10/Symbolic%20Execution%20for%20Software%20Testing%20Three%20Deca/"><span>论文阅读--&quot;Symbolic Execution for Software Testing&quot;</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2022 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
