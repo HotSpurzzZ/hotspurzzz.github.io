@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="覆盖减少模糊器+CFG相似性度量，对crash进行聚类"><meta name="keywords" content="Root Cause Analysis,Fuzz,Dynamic Analysis,Paper Reading,Cause Bucket"><meta name="author" content="HotSpurzzZ"><meta name="copyright" content="HotSpurzzZ"><title>论文阅读 -- &quot;Igor- Crash Deduplication Through Root-Cause Clustering&quot; | HotSpurzzZ</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"atom.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.0'
+} </script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="HotSpurzzZ" type="application/atom+xml">
+</head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="false"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Crash-bucketing-%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">Crash bucketing 问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6"><span class="toc-number">3.</span> <span class="toc-text">框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%96%B9%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">具体方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81Data-Preprocessing"><span class="toc-number">4.1.</span> <span class="toc-text">1、Data Preprocessing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%96%E6%A0%B7"><span class="toc-number">4.1.1.</span> <span class="toc-text">取样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%B0%8F%E5%8C%96"><span class="toc-number">4.1.2.</span> <span class="toc-text">最小化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Coverage-minimizing-fuzzing"><span class="toc-number">4.2.</span> <span class="toc-text">2、Coverage-minimizing fuzzing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81PoC-similarity-and-bug-clustering"><span class="toc-number">4.3.</span> <span class="toc-text">3、PoC similarity and bug clustering</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="toc-number">5.</span> <span class="toc-text">实验结果</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-number">6.</span> <span class="toc-text">局限性</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://i.loli.net/2021/09/28/5Oing3pmAYI6VtD.jpg"></div><div class="author-info__name text-center">HotSpurzzZ</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">23</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">25</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">11</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">HotSpurzzZ</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">主页</a><a class="site-page" href="/archives">归档</a><a class="site-page" href="/tags">标签</a><a class="site-page" href="/categories">分类</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> 搜索</span></a></span></div><div id="post-info"><div id="post-title">论文阅读 -- &quot;Igor- Crash Deduplication Through Root-Cause Clustering&quot;</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2023-03-29</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Cause-Bucket/">Cause Bucket</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>Author: Zhiyuan Jiang NUDT  Xiyue Jiang NUDT  Ahmad Hazimeh<br>Code: <a target="_blank" rel="noopener" href="https://github.com/HexHive/Igor">https://github.com/HexHive/Igor</a><br>Introducetion: 覆盖减少模糊器+CFG相似性度量，对crash进行聚类<br>Topic: Crash Bucket, Root Cause<br>Where: CCS 2021<br>Year: 2021</p>
+<span id="more"></span>
+<p>本文只是学习并记录笔记，如有错误或不足请谅解指正，谢谢！</p>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><hr>
+<ul>
+<li>解决的问题：当前工具对crash进行分类效果不好</li>
+<li>已有的方案：通过动态分析程序行为，来定位root cause（POMP AURORA REPT等）；基于崩溃位置crash sites 、覆盖信息 coverages profiles  或调用栈  stack hashes来进行crash分类</li>
+<li>本文提出的创新方案概述：最小化测试用例，根据它们的CFG图，通过Weisfeiler-Lehman Subtree Kernel algorithm聚类算法为crash进行分类</li>
+<li>实验效果：对10个程序产生的254,000个poc，产生的39个bug分成了48聚类。而当前其他方法会大一个数量级</li>
+</ul>
+<h1 id="Crash-bucketing-问题"><a href="#Crash-bucketing-问题" class="headerlink" title="Crash bucketing 问题"></a>Crash bucketing 问题</h1><hr>
+<p>崩溃分类的目的：给定大量的崩溃测试用例，哪些崩溃会触发相同的错误？</p>
+<p>当前方案：</p>
+<ul>
+<li>基于Crash Site：完全不准确</li>
+<li>基于Coverages Profiles：覆盖引导的Fuzz（如AFL）<ul>
+<li>如AFL崩溃去重原则：<br>①若该崩溃的路径出现了之前没执行过的路径，则认为是新的崩溃<br>②若该崩溃的路径不包括之前崩溃总是执行了的路径，则认为是新的崩溃</li>
+<li>缺点：对bug路径的轻微修改就被认为一个新的crash，对控制流细微变化很敏感，高估了2-3个数量级。</li>
+</ul>
+  CCS’18 Evaluating Fuzz Testing：  <img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled.png"></li>
+<li>基于Stack Hashes： function-sensitive，被用于honggfuzz和clusterfuzz<ul>
+<li>优点：  ①易于部署<br>  ②有论文研究：超过80%的崩溃根因是在崩溃调用栈上的</li>
+<li>缺点：<ul>
+<li>可能超过正确数量：输入至崩溃之间的路径不同</li>
+<li>可能少于正确数量：不同错误共享相同的调用序列</li>
+</ul>
+</li>
+</ul>
+  CCS’18 Evaluating Fuzz Testing：（注：last N = 3）  <img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%201.png"></li>
+<li>基于Root Cause：根据root cause来分类（POMP AURORA REPT等）<ul>
+<li>优点：比Stack Hashes更精确</li>
+<li>缺点：内存、时间消耗较大</li>
+</ul>
+</li>
+</ul>
+<p>根据当前主要流行的方案的优缺点，可以看到：基于Stack Hashes和基于Coverages Profiles的方法是当前主要被实用的崩溃分类/去重方法，但他们不准确的一个主要原因就是：对程序的执行行为路径的变化非常敏感。而当前主流的模糊测试工具都是以覆盖率为导向的（Coverage-guided），其目标就是最大化代码覆盖率，这加剧了这一问题。</p>
+<p>因此，作者认为，覆盖率最大化确实会有益于模糊测试，但不利于崩溃分类，那么就反其道而行之，将覆盖率最小化，易于崩溃分类。</p>
+<h1 id="框架"><a href="#框架" class="headerlink" title="框架"></a>框架</h1><hr>
+<p>覆盖率最大化策略。是fuzz过程中发现crash的有效手段；而覆盖率最小化fuzz，是最小化执行跟踪并实现有效的崩溃分组的关键。</p>
+<p>因此作者修剪不必要的执行跟踪元素，使crash的标签更精确，实现重复数据的消除。还通过使用CFG来更完整地查看crash的执行轨迹，来解决调用栈的缺点。</p>
+<p>1、实现了覆盖减少模糊器（Igorfuzz），获取最小化的测试用例</p>
+<p>2、对最小化执行跟踪的CFG图进行相似性比较，对其进行分组、聚类（使用Weisfeiler-Lehman Subtree Kernel algorithm）</p>
+<p>3、评估分类的真实性基准</p>
+<p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%202.png"></p>
+<h1 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h1><hr>
+<p>作者认为，相同root-cause的bug，它们的execution trace中有相同的核心行为。基于上述认识，作者认为可以选取合适粒度的核心行为来进行crash聚类。</p>
+<h2 id="1、Data-Preprocessing"><a href="#1、Data-Preprocessing" class="headerlink" title="1、Data Preprocessing"></a>1、<strong>Data Preprocessing</strong></h2><p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%203.png"></p>
+<h3 id="取样"><a href="#取样" class="headerlink" title="取样"></a>取样</h3><p>首先通过使用Stack Hashes对全部崩溃进行第一次分类</p>
+<p>注意，前面提到Stack Hashes不准确，于是作者采用last N = full length的方式进行崩溃栈分类，这虽然会分出很多种类，但能够大幅度确保一个崩溃栈映射到唯一一种漏洞上的概率。即，作者认为：一个漏洞可能有多个崩溃栈，而一个崩溃栈一般只映射到唯一一个漏洞上。（作者的测试数据：三个程序的71个bug中，有6个存在共享Stack hashes）</p>
+<p>每种Stack hash取最多50个POC</p>
+<p>这样的好处是可以对高相似度的POC进行去重，不影响精度的同时减低处理成本。</p>
+<h3 id="最小化"><a href="#最小化" class="headerlink" title="最小化"></a>最小化</h3><p>通过afl-tmin进行POC最小化（唯一优化的度量：缩小文件长度），可以间接缩短执行路径</p>
+<ul>
+<li>减小输入的大小能更快的进行处理，产生更高的模糊测试吞吐量</li>
+<li>通过从输入中删除多余的字节，模糊器的突变更有可能修改对程序行为至关重要的字节</li>
+<li>潜在风险：可能会引入新的bug，但几乎可以忽略不计（1/5531）</li>
+</ul>
+<h2 id="2、Coverage-minimizing-fuzzing"><a href="#2、Coverage-minimizing-fuzzing" class="headerlink" title="2、Coverage-minimizing fuzzing"></a>2、<strong>Coverage-minimizing fuzzing</strong></h2><p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%204.png"></p>
+<p>①只有错误的那部分代码被执行，才会触发crash</p>
+<p>②减少输入文件的长度，并不意味着减少对应的执行路径的长度</p>
+<p>目标：寻找<code>shortest bug-triggering path</code> </p>
+<p>通过修改AFL++的崩溃探索模式，形成了Igorfuzz</p>
+<p>修改的规则：</p>
+<ul>
+<li>修改isInteresting方法，只保留崩溃测试用例</li>
+<li>种子不执行公共边（即，尽管总体覆盖率可能会增加，但至少一个边缘不再执行）  <img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%205.png"></li>
+<li>种子执行一些命中次数较少的边（至少一条边执行次数更少，而没有某一条边会执行更多次数）  <img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%206.png"></li>
+</ul>
+<p>同时，对于“局部最小化”的问题（个人理解就是：fuzz在这个局部进行优化，一直认为当前路径已经是最小路径了，但实际上可能发生在较远的路径上）也能很好的处理</p>
+<p>能量调度：分配给路径更短的种子</p>
+<p>Fuzz输出选择标准：<br>①  BitmapSize   – 显示触发了多少唯一边<br>② Crash Sites   – 辅助功能：避免产出新类型的崩溃</p>
+<p>最后，使用Intel PIN进行动态追踪，获取控制流</p>
+<p>去除的噪声：</p>
+<p>一、外部调用（如libc）<br>二、崩溃发生后的函数调用（如ASAN）</p>
+<h2 id="3、PoC-similarity-and-bug-clustering"><a href="#3、PoC-similarity-and-bug-clustering" class="headerlink" title="3、PoC similarity and bug clustering"></a>3、<strong>PoC similarity and bug clustering</strong></h2><p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%207.png"></p>
+<p>① 使用NetworkX将trace生成DCFG，使用GraKeL将DCFG转为相似矩阵<br>② 使用Weisfeiler-Lehman Subtree Kernel algorithm聚类算法<br>默认运行15次聚类，从2到16列举聚类的数量，每次计算轮廓分数（silhouette score），输出分数最高的聚类结果</p>
+<h1 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h1><hr>
+<p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%208.png"></p>
+<p>其中，后面比较的Top Frame(N=1)、BFF-5(N=5)、honggfuzz(N=7)、afl-collect(N=FULL)都是采用基于堆栈哈希来进行分类的，只是深度不同</p>
+<p>最小化实验效果：</p>
+<p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%209.png"></p>
+<p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%2010.png"></p>
+<p>如果不进行最小化，直接用原版crash进行聚类，效果不佳：</p>
+<p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%2011.png"></p>
+<p>最小化后的聚类，效果较好：</p>
+<p><img src="/2023/03/29/Igor%20Crash%20Deduplication%20Through%20Root-Cause%20Cluste/Untitled%2012.png"></p>
+<h1 id="局限性"><a href="#局限性" class="headerlink" title="局限性"></a>局限性</h1><p>Igor局限性：</p>
+<p>① 使用轮廓分数（silhouette score）不能保证区分所有的聚类，需要手动检查。如果同一聚类内的样本之间仍然存在差距，则表明需要进行第二次聚类。</p>
+<p>② 当输入实际上只有一种bug时，聚类仍然会对其进行分类（2至16）。当Igor发现自己给出的组号大于afl-collect时，它将调用afl-collect对崩溃进行分组。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">HotSpurzzZ</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/03/29/Igor Crash Deduplication Through Root-Cause Cluste/">http://example.com/2023/03/29/Igor Crash Deduplication Through Root-Cause Cluste/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com">HotSpurzzZ</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Root-Cause-Analysis/">Root Cause Analysis</a><a class="post-meta__tags" href="/tags/Fuzz/">Fuzz</a><a class="post-meta__tags" href="/tags/Dynamic-Analysis/">Dynamic Analysis</a><a class="post-meta__tags" href="/tags/Paper-Reading/">Paper Reading</a><a class="post-meta__tags" href="/tags/Cause-Bucket/">Cause Bucket</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2022/09/10/LibFuzzer%20%E5%AD%A6%E4%B9%A0/"><span>LibFuzzer 基础使用</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: 'b166e2f551e9803e7eef',
+  clientSecret: '9267242d46a5b1af315666cd638e6db8e0bb8249',
+  repo: 'blogcomments',
+  owner: 'HotSpurzzZ',
+  admin: 'HotSpurzzZ',
+  id: md5(decodeURI(location.pathname)),
+  language: 'zh-CN'
+})
+gitalk.render('gitalk-container')</script></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2021 - 2023 By HotSpurzzZ</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
